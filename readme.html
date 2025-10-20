@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>assert.js</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="Author" content="Czigler Ferenc" />
+<meta name="Copyright" content="(C) Copyright Czigler Ferenc" />
+<link rel="stylesheet" href="u87.css" type="text/css" />
+<script type="module">
+// Import the assert function
+//import assert from "./assert.js";
+//globalThis.assert = assert;
+// Import the assert function as defaultExport
+import defaultExport from "./assert.js";
+globalThis.assert = defaultExport;
+</script>
+<script src="unittest.js"></script>
+<style>
+body {
+  font-size: 15px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0.5rem;
+}
+</style>
+</head>
+<body>
+
+<h1 class="center">assert.js</h1>
+
+<p>Latest version: 1.0.1</p>
+
+<p>Date: 2025-10-17T18:20:04.454Z</p>
+
+<p>A modern, zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.</p>
+
+<p>Implements and extends the <a href="https://wiki.commonjs.org/wiki/Unit_Testing/1.0" target="_blank">CommonJS Unit Testing 1.0 spec</a>.</p>
+
+<hr>
+
+<h2>Autotest</h2>
+
+<p>
+  &nbsp;
+  <button onclick="autoTestSync();">run sync autotests</button>
+  &nbsp;
+  <button onclick="autoTestAsync();">run async autotests</button>
+  &nbsp;
+  <button onclick="globalThis.location.reload(true);">reset page</button>
+  &nbsp;
+</p>
+
+<hr>
+
+<h2>Summary</h2>
+<table class="table-responsive-sm table-striped">
+  <tr>
+    <th><strong>Category</strong></th>
+    <th><strong>Assertions</strong></th>
+  </tr>
+  <tr>
+    <td>Constants</td>
+    <td><code>assert.VERSION;</code></td>
+  </tr>
+  <tr>
+    <td>Errors</td>
+    <td><code>assert.AssertionError</code></td>
+  </tr>
+  <tr>
+    <td>Basic</td>
+    <td><code>assert();</code>, <code>assert.ok();</code>, <code>assert.notOk();</code>, <code>assert.fail();</code></td>
+  </tr>
+  <tr>
+    <td>Equality</td>
+    <td><code>assert.equal();</code>, <code>assert.notEqual();</code>, <code>assert.strictEqual();</code>, <code>assert.notStrictEqual();</code>, <code>assert.deepEqual();</code>, <code>assert.notDeepEqual();</code></td>
+  </tr>
+  <tr>
+    <td>Exceptions</td>
+    <td><code>assert.throws();</code>, <code>await assert.rejects();</code>, <code>await assert.doesNotReject();</code></td>
+  </tr>
+  <tr>
+    <td>Boolean</td>
+    <td><code>assert.isTrue();</code>, <code>assert.isFalse();</code></td>
+  </tr>
+  <tr>
+    <td>Type</td>
+    <td><code>assert.is();</code>, <code>assert.isNot();</code>, <code>assert.isNullish();</code>, <code>assert.isNotNullish();</code></td>
+  </tr>
+  <tr>
+    <td>String</td>
+    <td><code>assert.match();</code>, <code>assert.doesNotMatch();</code>, <code>assert.stringContains();</code>, <code>assert.stringNotContains();</code></td>
+  </tr>
+  <tr>
+    <td>Comparison</td>
+    <td><code>assert.lt();</code>, <code>assert.lte();</code>, <code>assert.gt();</code>, <code>assert.gte();</code></td>
+  </tr>
+  <tr>
+  <tr>
+    <td>Objects</td>
+    <td><code>includes();</code>, <code>doesNotInclude();</code></td>
+  </tr>
+  <tr>
+    <td>Testrunner</td>
+    <td><code>assert.testSync();</code>, <code>await assert.testAsync();</code>, <code>assert.testCheck();</code></td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>Tested on these</h2>
+
+ <ul>
+  <li>Windows Firefox</li>
+  <li>Windows Chrome</li>
+  <li>Windows Edge</li>
+  <li>iOS Safari</li>
+  <li>iOS Firefox</li>
+  <li>iOS Chrome</li>
+  <li>iOS Edge</li>
+  <li>Android Firefox</li>
+  <li>Android Chrome</li>
+  <li>Android Samsung Internet</li>
+  <li>Android Edge</li>
+  <li>Node.js (latest current, not LTS)</li>
+  <li>Deno (latest current, not LTS)</li>
+</ul>
+
+<hr>
+
+<h2>Import</h2>
+
+<h3>Import the assert function</h3>
+
+<pre>import assert from "./assert.js";
+globalThis.assert = assert;</pre>
+
+<h3>Import the assert function as defaultExport</h3>
+
+<pre>import defaultExport from "./assert.js";
+globalThis.assert = defaultExport;</pre>
+
+<h3>Dynamic import</h3>
+
+<pre>const assert = await import("./assert.js");
+globalThis.assert = assert;</pre>
+
+<hr>
+
+<h2>Constants</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.VERSION</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Returns the library version string.</p>
+
+<pre>console.log(assert.VERSION); // "assert.js v1.0.0"</pre>
+
+<hr>
+
+<h2>Errors</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.AssertionError</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Custom error class used internally by all failed assertions.</p>
+
+<pre>try {
+  assert(false, "example");
+} catch (e) {
+  if (e instanceof assert.AssertionError) {
+    console.log("Caught assertion:", e.message);
+  }
+}</pre>
+
+<hr>
+
+<h2>Basic Assertions</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert(condition, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Checks that <code>condition</code> is truthy. Throws an <code>AssertionError</code> if falsy.</p>
+
+<pre>assert(true); // passes
+// assert(false, "should be true"); // throws an error fails</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.ok(condition, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Alias for <code>assert(condition, [message: string | Error]);</code>.</p>
+
+<pre>assert.ok(1 === 1); // passes
+// assert.ok(0, "0 is falsy"); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.notOk(condition, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures a value is falsy.</p>
+
+<pre>assert.notOk(0); // passes
+assert.notOk(""); // passes
+// assert.notOk(true); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.fail([message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Forces a failure.</p>
+
+<pre>// assert.fail("This should fail"); // throws an error</pre>
+
+<hr>
+
+<h2>Equality Assertions</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.equal(actual, expected, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Loose equality (<code>==</code>).</p>
+
+<pre>assert.equal(1, "1"); // passes
+assert.equal(true, 1); // passes
+// assert.equal(1, 2); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.notEqual(actual, expected, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Inverse of <code>Equal(actual, expected, [message: string | Error]);</code>.</p>
+
+<pre>assert.notEqual(1, 2); // passes
+// assert.notEqual(1, "1"); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.strictEqual(actual, expected, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Strict equality (<code>Object.is();</code>).</p>
+
+<pre>assert.strictEqual(1, 1); // passes
+assert.strictEqual(NaN, NaN); // passes
+// assert.strictEqual(1, "1"); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.notStrictEqual(actual, expected, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Inverse of <code>strictEqual(actual, expected, [message: string | Error]);</code>.</p>
+
+<pre>assert.notStrictEqual(1, "1"); // passes
+// assert.notStrictEqual(NaN, NaN); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.deepEqual(actual, expected, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Deep equality check.</p>
+
+<pre>assert.deepEqual({ a: 1 }, { a: 1 }); // passes
+assert.deepEqual([1, 2], [1, 2]); // passes
+// assert.deepEqual({ a: 1 }, { a: 2 }); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.notDeepEqual(actual, expected, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Inverse of <code>deepEqual(actual, expected, [message: string | Error]);</code>.</p>
+
+<pre>assert.notDeepEqual({ a: 1 }, { a: 2 }); // passes
+// assert.notDeepEqual({ a: 1 }, { a: 1 }); // throws an error</pre>
+
+<hr>
+
+<h2>Exception Assertions</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.throws(fn, [ErrorType|string|RegExp], [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Checks that a function <strong>throws</strong>.</p>
+
+<pre>assert.throws(() =&gt; { throw new TypeError("oops"); }, TypeError); // passes
+assert.throws(() =&gt; { throw new Error("boom"); }, /boom/); // passes
+// assert.throws(() =&gt; 42); // did not throw</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">await assert.rejects(asyncFnOrPromise, [ErrorType|string|RegExp], [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Checks that an async function or promise <strong>rejects</strong>.</p>
+
+<pre>await assert.rejects(async () =&gt; { throw new Error("fail"); }, /fail/);  // passes
+// await assert.rejects(async () =&gt; 42); // resolved, didn’t reject</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">await assert.doesNotReject(asyncFnOrPromise, [ErrorType|string|RegExp], [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures an async function or promise <strong>resolves</strong> (does <em>not</em> reject).</p>
+
+<pre>await assert.doesNotReject(async () =&gt; 42); // passes
+// await assert.doesNotReject(async () =&gt; { throw new Error("oops"); }); // throws an error</pre>
+
+<hr>
+
+<h2>Boolean Assertions</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.isTrue(value, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures value is exactly <code>true</code>.</p>
+
+<pre>assert.isTrue(true); // passes
+// assert.isTrue(1); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.isFalse(value, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures value is exactly <code>false</code>.</p>
+
+<pre>assert.isFalse(false); // passes
+// assert.isFalse(0); // throws an error</pre>
+
+<hr>
+
+<h2>Type Assertions</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.is(value, expectedType, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures a value matches a type or constructor. The expected type can be a string, function or an array of strings and functions.</p>
+
+<pre>assert.is(123, "number"); // passes
+assert.is([], Array); // passes
+assert.is(new Map(), [Map, Object]); // passes
+// assert.is("hi", Number); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.isNot(value, expectedType, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Inverse of <code>is(value, expectedType, [message: string | Error]);</code>. The expected type can be a string, function or an array of strings and functions.</p>
+
+<pre>assert.isNot("hello", Number); // passes
+assert.isNot([], Set); // passes
+// assert.isNot([], Array); // throws an error
+</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.isNullish(value, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures value is <code>null</code> or <code>undefined</code>.</p>
+
+<pre>assert.isNullish(undefined); // passes
+assert.isNullish(null); // passes
+// assert.isNullish(0); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotNullish(value, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures value is <em>not</em> <code>null</code> or <code>undefined</code>.</p>
+
+<pre>assert.isNotNullish(42); // passes
+assert.isNotNullish("ok"); // passes
+// assert.isNotNullish(null); // throws an error</pre>
+
+<hr>
+
+<h2>String Assertions</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.match(string, regexp, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures a string matches a regular expression.</p>
+
+<pre>assert.match("hello world", /world/); // passes
+// assert.match("hello", /bye/); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.doesNotMatch(string, regexp, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures a string does not match a regular expression.</p>
+
+<pre>assert.doesNotMatch("hello", /bye/); // passes
+// assert.doesNotMatch("hello world", /world/); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.stringContains(actual, substring, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures a string contains a substring.</p>
+
+<pre>assert.stringContains("hello world", "world"); // passes
+// assert.stringContains("hello", "z"); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.stringNotContains(actual, substring, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Ensures a string <em>does not</em> contain a substring.</p>
+
+<pre>assert.stringNotContains("hello", "z"); // passes
+// assert.stringNotContains("hello", "he"); // throws an error</pre>
+
+<hr>
+
+<h2>Comparison Assertions</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.lt(value1, value2, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Checks <code>a &lt; b</code>, but the value types have to be same type.</p>
+
+<pre>assert.lt(3, 5); // passes
+// assert.lt(5, 3); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.lte(value1, value2, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Checks <code>a &lt;= b</code>, but the value types have to be same type.</p>
+
+<pre>assert.lte(3, 3); // passes
+assert.lte(2, 4); // passes
+// assert.lte(5, 3); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.gt(value1, value2, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Checks <code>a &gt; b</code>, but the value types have to be same type.</p>
+
+<pre>assert.gt(5, 3); // passes
+// assert.gt(3, 5); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.gte(value1, value2, [message: string | Error]);</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Checks <code>a &gt;= b</code>, but the value types have to be same type.</p>
+
+<pre>assert.gte(3, 3); // passes
+assert.gte(5, 3); // passes
+// assert.gte(2, 3); // throws an error</pre>
+
+<hr/>
+
+<h2>Objects</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.includes(container, options: {keyOrValue, [value] }, [message: string | Error]);</h3>
+
+<p>Added in v1.0.1</p>
+
+<p>Ensures a container includes a key and value.</p>
+
+<p><strong>Compatible with these types and objects:</strong></p>
+
+<ul>
+  <li>Plain objects (own properties)</li>
+  <li>string (includes other string)</li>
+  <li>String object (includes other string)</li>
+  <li>Array</li>
+  <li>TypedArrays (Int8Array, etc.)</li>
+  <li>Map</li>
+  <li>WeakMap</li>
+  <li>Set</li>
+  <li>WeakSet</li>
+  <li>Iterable objects</li>
+  <li>Iterator objects</li>
+</ul>
+
+<pre>
+assert.includes([1, 2, 3], {keyOrValue: 3 }); // passes
+assert.includes({"x": 42}), {keyOrValue: "x"}); // passes
+assert.includes({"x": 42}, {keyOrValue: "x", value: 42}); // passes
+assert.includes(new Map([["x", 42]]), {keyOrValue: "x"}); // passes
+assert.includes(new Map([["x", 42]]), {keyOrValue: "x", value: 42}); // passes
+// assert.includes([1, 2, 3], 4); // throws an error
+// assert.includes({"x": 42}, {keyOrValue: "y"}); // throws an error
+// assert.includes({"x": 42}, {keyOrValue: "x", value: 43}); // throws an error
+// assert.includes(new Map([["x", 42]]), {keyOrValue: "y"}); // throws an error
+// assert.includes(new Map([["x", 42]]), {keyOrValue: "x", value: 43}); // throws an error
+</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.doesNotInclude(container, options: {keyOrValue, [value] }, [message: string | Error]);</h3>
+
+<p>Added in v1.0.1</p>
+
+<p>Inverse of <code>assert.includes(container, options: {keyOrValue, [value] }, [message: string | Error]);</code>.</p>
+
+<pre>
+assert.doesNotInclude([1, 2, 3], 4); // passes
+assert.doesNotInclude({"x": 42}, {keyOrValue: "y"}); // passes
+assert.doesNotInclude({"x": 42}, {keyOrValue: "x", value: 43}); // passes
+assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "y"}); // passes
+assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 43}); // passes
+// assert.includes([1, 2, 3], {keyOrValue: 3 }); // throws an error
+// assert.doesNotInclude({"x": 42}, {keyOrValue: "x"}); // throws an error
+// assert.doesNotInclude({"x": 42}, {keyOrValue: "x", value: 42}); // throws an error
+// assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x"}); // throws an error
+// assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 42}); // throws an error
+</pre>
+
+<hr>
+
+<h2>Testrunner</h2>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.testSync(block): { ok: true; value: any } | { ok: false; error: Error }</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Synchronously runs a block of code and returns either its result or the caught error.</p>
+
+<pre>if (assert.testCheck(assert.testSync(() => 42))) {
+  console.log("passed");
+} else {
+  console.error("failed");
+}</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">await assert.testAsync(block): { ok: true; value: any } | { ok: false; error: Error }</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Asynchronously runs a block of code and returns either its result or the caught error.</p>
+
+<pre>(async () => {
+  const result = await assert.testAsync(async function () { return 42; });
+  if (assert.testCheck(result)) {
+    console.log("passed"); */
+  } else {
+    console.error("failed");
+  }
+})();</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.testCheck(result: { ok: true; value: any } | { ok: false; error: Error }): result.ok is true</h3>
+
+<p>Added in v1.0.0</p>
+
+<p>Checks if the result is successful.</p>
+
+<pre>if (assert.testCheck(assert.testSync(() => 42))) {
+  console.log("passed");
+} else {
+  console.error("failed");
+}</pre>
+
+<hr>
+
+<h2>Example Test File</h2>
+
+<pre>import assert from "./assert.js"
+
+function add(a, b) {
+  return a + b;
+}
+
+assert.strictEqual(add(2, 3), 5); // passes
+assert.notEqual(add(1, 1), 3); // passes
+assert.is(add, Function); // passes
+assert.doesNotReject(async () =&gt; add(1, 2)); // passes</pre>
+
+<hr>
+
+<h2>License</h2>
+
+<p><a href="https://opensource.org/licenses/MIT" target="_blank">https://opensource.org/licenses/MIT</a></p>
+
+<p>MIT License</p>
+
+<p>SPDX short identifier: MIT</p>
+
+<p>Copyright (c) 2025 Ferenc Czigler</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</p>
+
+<hr>
+
+<p>&copy; Copyright 2025 Ferenc Czigler <a href="https://github.com/Serrin" target="_blank">https://github.com/Serrin</a></p>
+
+</body>
+</html>

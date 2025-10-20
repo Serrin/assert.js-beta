@@ -1,2 +1,595 @@
-# assert.js-beta
-Beta versions of the assert.js library (https://github.com/Serrin/assert.js)
+# assert.js
+
+Latest version: 1.0.1
+
+Date: 2025-10-17T18:20:04.454Z
+
+A modern, zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.
+Implements and extends the [CommonJS Unit Testing 1.0 spec](https://wiki.commonjs.org/wiki/Unit_Testing/1.0).
+
+---
+
+## Summary
+
+Category | Assertions
+---------|-------------
+Constants | `assert.VERSION;`
+Errors | `assert.AssertionError`
+Basic | `assert();`, `assert.ok();`, `assert.notOk();`, `assert.fail();`
+Equality | `assert.equal();`, `assert.notEqual();`, `assert.strictEqual();`, `assert.notStrictEqual();`, `assert.deepEqual();`, `assert.notDeepEqual();`
+Exceptions | `assert.throws();`, `await assert.rejects();`, `await assert.doesNotReject();`
+Boolean | `assert.isTrue();`, `assert.isFalse();`
+Type | `assert.is();`, `assert.isNot();`, `assert.isNullish();`, `assert.isNotNullish();`
+String | `assert.match();`, `assert.doesNotMatch();`, `assert.stringContains();`, `assert.stringNotContains();`
+Comparison | `assert.lt();`, `assert.lte();`, `assert.gt();`, `assert.gte();`
+Objects | `includes();`, `doesNotInclude();`
+Testrunner | `assert.testSync();`, `await assert.testAsync();`, `assert.testCheck();`
+
+---
+
+## Tested on these
+
+- Windows Firefox
+- Windows Chrome
+- Windows Edge
+- iOS Safari
+- iOS Firefox
+- iOS Chrome
+- iOS Edge
+- Android Firefox
+- Android Chrome
+- Android Samsung Internet
+- Android Edge
+- Node.js (latest current, not LTS)
+- Deno (latest current, not LTS)
+
+---
+
+## Import
+
+### Import the assert function
+
+````js
+import assert from "./assert.js";
+globalThis.assert = assert;
+````
+
+### Import the assert function as defaultExport
+
+````js
+import defaultExport from "./assert.js";
+globalThis.assert = defaultExport;
+````
+
+### Dynamic import
+
+````js
+const assert = await import("./assert.js");
+globalThis.assert = assert;
+````
+
+---
+
+## Constants
+
+### `assert.VERSION;`
+
+Added in v1.0.0
+
+Returns the library version string.
+
+````js
+console.log(assert.VERSION); // "assert.js v1.0.0"
+````
+
+---
+
+## Errors
+
+### `assert.AssertionError`
+
+Added in v1.0.0
+
+Custom error class used internally by all failed assertions.
+
+````js
+try {
+  assert(false, "example");
+} catch (e) {
+  if (e instanceof assert.AssertionError) {
+    console.log("Caught assertion:", e.message);
+  }
+}
+````
+
+---
+
+## Basic Assertions
+
+### `assert(condition, [message: string | Error]);`
+
+Added in v1.0.0
+
+Checks that `condition` is truthy. Throws an `AssertionError` if falsy.
+
+````js
+assert(true); // passes
+// assert(false, "should be true"); // throws an error fails
+````
+
+### `assert.ok(condition, [message: string | Error]);`
+
+Added in v1.0.0
+
+Alias for `assert(condition, [message: string | Error]);`.
+
+````js
+assert.ok(1 === 1); // passes
+// assert.ok(0, "0 is falsy"); // throws an error
+````
+
+### `assert.notOk(condition, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures a value is falsy.
+
+````js
+assert.notOk(0); // passes
+assert.notOk(""); // passes
+// assert.notOk(true); // throws an error
+````
+
+### `assert.fail([message: string | Error]);`
+
+Added in v1.0.0
+
+Forces a failure.
+
+````js
+// assert.fail("This should fail"); // throws an error
+````
+
+---
+
+## Equality Assertions
+
+### `assert.equal(actual, expected, [message: string | Error]);`
+
+Added in v1.0.0
+
+Loose equality (`==`).
+
+````js
+assert.equal(1, "1"); // passes
+assert.equal(true, 1); // passes
+// assert.equal(1, 2); // throws an error
+````
+
+### `assert.notEqual(actual, expected, [message: string | Error]);`
+
+Added in v1.0.0
+
+Inverse of `equal(actual, expected, [message: string | Error]);`.
+
+````js
+assert.notEqual(1, 2); // passes
+// assert.notEqual(1, "1"); // throws an error
+````
+
+### `assert.strictEqual(actual, expected, [message: string | Error]);`
+
+Added in v1.0.0
+
+Strict equality (`Object.is();`).
+
+````js
+assert.strictEqual(1, 1); // passes
+assert.strictEqual(NaN, NaN); // passes
+// assert.strictEqual(1, "1"); // throws an error
+````
+
+### `assert.notStrictEqual(actual, expected, [message: string | Error]);`
+
+Added in v1.0.0
+
+Inverse of `strictEqual(actual, expected, [message: string | Error]);`.
+
+````js
+assert.notStrictEqual(1, "1"); // passes
+// assert.notStrictEqual(NaN, NaN); // throws an error
+````
+
+### `assert.deepEqual(actual, expected, [message: string | Error]);`
+
+Added in v1.0.0
+
+Deep equality check.
+
+````js
+assert.deepEqual({ a: 1 }, { a: 1 }); // passes
+assert.deepEqual([1, 2], [1, 2]); // passes
+// assert.deepEqual({ a: 1 }, { a: 2 }); // throws an error
+````
+
+### `assert.notDeepEqual(actual, expected, [message: string | Error]);`
+
+Added in v1.0.0
+
+Inverse of `deepEqual(actual, expected, [message: string | Error]);`.
+
+````js
+assert.notDeepEqual({ a: 1 }, { a: 2 }); // passes
+// assert.notDeepEqual({ a: 1 }, { a: 1 }); // throws an error
+````
+
+---
+
+## Exception Assertions
+
+### `assert.throws(fn, [ErrorType|string|RegExp], [message: string | Error]);`
+
+Added in v1.0.0
+
+Checks that a function __throws__.
+
+````js
+assert.throws(() => { throw new TypeError("oops"); }, TypeError); // passes
+assert.throws(() => { throw new Error("boom"); }, /boom/); // passes
+// assert.throws(() => 42); // did not throw
+````
+
+### `await assert.rejects(asyncFnOrPromise, [ErrorType|string|RegExp], [message: string | Error]);`
+
+Added in v1.0.0
+
+Checks that an async function or promise __rejects__.
+
+````js
+await assert.rejects(async () => { throw new Error("fail"); }, /fail/);  // passes
+// await assert.rejects(async () => 42); // resolved, didn’t reject
+````
+
+### `await assert.doesNotReject(asyncFnOrPromise, [ErrorType|string|RegExp], [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures an async function or promise __resolves__ (does *not* reject).
+
+````js
+await assert.doesNotReject(async () => 42); // passes
+// await assert.doesNotReject(async () => { throw new Error("oops"); }); // throws an error
+````
+
+---
+
+## Boolean Assertions
+
+### `assert.isTrue(value, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures value is exactly `true`.
+
+````js
+assert.isTrue(true); // passes
+// assert.isTrue(1); // throws an error
+````
+
+### `assert.isFalse(value, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures value is exactly `false`.
+
+````js
+assert.isFalse(false); // passes
+// assert.isFalse(0); // throws an error
+````
+
+---
+
+## Type Assertions
+
+### `assert.is(value, expectedType, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures a value matches a type or constructor. The expected type can be a string, function or an array of strings and functions.
+
+````js
+assert.is(123, "number"); // passes
+assert.is([], Array); // passes
+assert.is(new Map(), [Map, Object]); // passes
+// assert.is("hi", Number); // throws an error
+````
+
+### `assert.isNot(value, expectedType, [message: string | Error]);`
+
+Added in v1.0.0
+
+Inverse of `is(value, expectedType, [message: string | Error]);`. The expected type can be a string, function or an array of strings and functions.
+
+````js
+assert.isNot("hello", Number); // passes
+assert.isNot([], Set); // passes
+// assert.isNot([], Array); // throws an error
+````
+
+### `assert.isNullish(value, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures value is `null` or `undefined`.
+
+````js
+assert.isNullish(undefined); // passes
+assert.isNullish(null); // passes
+// assert.isNullish(0); // throws an error
+````
+
+### `assert.isNotNullish(value, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures value is *not* `null` or `undefined`.
+
+````js
+assert.isNotNullish(42); // passes
+assert.isNotNullish("ok"); // passes
+// assert.isNotNullish(null); // throws an error
+````
+
+---
+
+## String Assertions
+
+### `assert.match(string, regexp, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures a string matches a regular expression.
+
+````js
+assert.match("hello world", /world/); // passes
+// assert.match("hello", /bye/); // throws an error
+````
+
+### `assert.doesNotMatch(string, regexp, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures a string does not match a regular expression.
+
+````js
+assert.doesNotMatch("hello", /bye/); // passes
+// assert.doesNotMatch("hello world", /world/); // throws an error
+````
+
+### `assert.stringContains(actual, substring, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures a string contains a substring.
+
+````js
+assert.stringContains("hello world", "world"); // passes
+// assert.stringContains("hello", "z"); // throws an error
+````
+
+### `assert.stringNotContains(actual, substring, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures a string *does not* contain a substring.
+
+````js
+assert.stringNotContains("hello", "z"); // passes
+// assert.stringNotContains("hello", "he"); // throws an error
+````
+
+---
+
+## Comparison Assertions
+
+### `assert.lt(value1, value2, [message: string | Error]);`
+
+Added in v1.0.0
+
+Checks `a < b`, but the value types have to be same type.
+
+````js
+assert.lt(3, 5); // passes
+// assert.lt(5, 3); // throws an error
+````
+
+### `assert.lte(value1, value2, [message: string | Error]);`
+
+Added in v1.0.0
+
+Checks `a <= b`, but the value types have to be same type.
+
+````js
+assert.lte(3, 3); // passes
+assert.lte(2, 4); // passes
+// assert.lte(5, 3); // throws an error
+````
+
+### `assert.gt(value1, value2, [message: string | Error]);`
+
+Added in v1.0.0
+
+Checks `a > b`, but the value types have to be same type.
+
+````js
+assert.gt(5, 3); // passes
+// assert.gt(3, 5); // throws an error
+````
+
+### `assert.gte(value1, value2, [message: string | Error]);`
+
+Added in v1.0.0
+
+Checks `a >= b`, but the value types have to be same type.
+
+````js
+assert.gte(3, 3); // passes
+assert.gte(5, 3); // passes
+// assert.gte(2, 3); // throws an error
+````
+
+---
+
+## Objects
+
+### `assert.includes(container, options: {keyOrValue, [value] }, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures a container includes a key and value.
+
+__Compatible with these types and objects:__
+
+- Plain objects (own properties)
+- string (includes other string)
+- String object (includes other string)
+- Array
+- TypedArrays (Int8Array, etc.)
+- Map
+- WeakMap
+- Set
+- WeakSet
+- Iterable objects
+- Iterator objects
+
+````js
+assert.includes([1, 2, 3], {keyOrValue: 3 }); // passes
+assert.includes({"x": 42}), {keyOrValue: "x"}); // passes
+assert.includes({"x": 42}, {keyOrValue: "x", value: 42}); // passes
+assert.includes(new Map([["x", 42]]), {keyOrValue: "x"}); // passes
+assert.includes(new Map([["x", 42]]), {keyOrValue: "x", value: 42}); // passes
+// assert.includes([1, 2, 3], 4); // throws an error
+// assert.includes({"x": 42}, {keyOrValue: "y"}); // throws an error
+// assert.includes({"x": 42}, {keyOrValue: "x", value: 43}); // throws an error
+// assert.includes(new Map([["x", 42]]), {keyOrValue: "y"}); // throws an error
+// assert.includes(new Map([["x", 42]]), {keyOrValue: "x", value: 43}); // throws an error
+````
+
+### `assert.doesNotInclude(container, options: {keyOrValue, [value] }, [message: string | Error]);`
+
+Added in v1.0.1
+
+Inverse of `assert.includes(container, options: {keyOrValue, [value] }, [message: string | Error]);`.
+
+````js
+assert.doesNotInclude([1, 2, 3], 4); // passes
+assert.doesNotInclude({"x": 42}, {keyOrValue: "y"}); // passes
+assert.doesNotInclude({"x": 42}, {keyOrValue: "x", value: 43}); // passes
+assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "y"}); // passes
+assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 43}); // passes
+// assert.includes([1, 2, 3], {keyOrValue: 3 }); // throws an error
+// assert.doesNotInclude({"x": 42}, {keyOrValue: "x"}); // throws an error
+// assert.doesNotInclude({"x": 42}, {keyOrValue: "x", value: 42}); // throws an error
+// assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x"}); // throws an error
+// assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 42}); // throws an error
+````
+
+---
+
+## Testrunner
+
+### `assert.testSync(block): { ok: true; value: any } | { ok: false; error: Error }`
+
+Added in v1.0.0
+
+Synchronously runs a block of code and returns either its result or the caught error.
+
+````js
+if (assert.testCheck(assert.testSync(() => 42))) {
+  console.log("passed");
+} else {
+  console.error("failed");
+}
+````
+
+### `await assert.testASync(block): { ok: true; value: any } | { ok: false; error: Error }`
+
+Added in v1.0.0
+
+Asynchronously runs a block of code and returns either its result or the caught error.
+
+````js
+(async () => {
+  const result = await assert.testAsync(async function () { return 42; });
+  if (assert.testCheck(result)) {
+    console.log("passed"); */
+  } else {
+    console.error("failed");
+  }
+})();
+````
+
+### `assert.testCheck(result: { ok: true; value: any } | { ok: false; error: Error }): result.ok is true`
+
+Added in v1.0.0
+
+Checks if the result is successful.
+
+````js
+if (assert.testCheck(assert.testSync(() => 42))) {
+  console.log("passed");
+} else {
+  console.error("failed");
+}
+````
+
+---
+
+## Example Test File
+
+````js
+import assert from "./assert.js"
+
+function add(a, b) {
+  return a + b;
+}
+
+assert.strictEqual(add(2, 3), 5); // passes
+assert.notEqual(add(1, 1), 3); // passes
+assert.is(add, Function); // passes
+assert.doesNotReject(async () => add(1, 2)); // passes
+````
+
+---
+
+## License
+
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+MIT License
+
+SPDX short identifier: MIT
+
+Copyright (c) 2025 Ferenc Czigler
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+© Copyright 2025 Ferenc Czigler [https://github.com/Serrin](https://github.com/Serrin)
