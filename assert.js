@@ -207,6 +207,16 @@ function _isType(value, expectedType, Throw = false) {
     }
     return matched;
 }
+const _isNullish = (value) => typeof value === "undefined" || value === null;
+const _isNull = (value) => value === null;
+const _isUndefined = (value) => typeof value === "undefined";
+const _isString = (value) => typeof value === "string";
+const _isNumber = (value) => typeof value === "number";
+const _isBigInt = (value) => typeof value === "bigint";
+const _isBoolean = (value) => typeof value === "boolean";
+const _isSymbol = (value) => typeof value === "symbol";
+const _isFunction = (value) => typeof value === "function";
+const _isObject = (value) => value != null && typeof value === "object";
 function _toSafeString(value) {
     const seen = new WeakSet();
     const replacer = (_key, value) => {
@@ -602,11 +612,11 @@ function isNot(value, expectedType, message) {
     }
 }
 function isNullish(value, message) {
-    if (value != null) {
+    if (!_isNullish(value)) {
         if (message instanceof Error) {
             throw message;
         }
-        let errorMessage = `[isNullish] Assertion failed: ${_toSafeString(value)} should be nullish${message ? " - " + _toSafeString(message) : ""}`;
+        let errorMessage = `[isNullish] Assertion failed: ${_toSafeString(value)} should be null or undefined${message ? " - " + _toSafeString(message) : ""}`;
         throw new assert.AssertionError(errorMessage, {
             message: errorMessage,
             cause: errorMessage,
@@ -617,17 +627,287 @@ function isNullish(value, message) {
     }
 }
 function isNotNullish(value, message) {
-    if (value == null) {
+    if (_isNullish(value)) {
         if (message instanceof Error) {
             throw message;
         }
-        let errorMessage = `[isNotNullish] Assertion failed: ${_toSafeString(value)} should be not nullish${message ? " - " + _toSafeString(message) : ""}`;
+        let errorMessage = `[isNotNullish] Assertion failed: ${_toSafeString(value)} should be not null or undefined${message ? " - " + _toSafeString(message) : ""}`;
         throw new assert.AssertionError(errorMessage, {
             message: errorMessage,
             cause: errorMessage,
             actual: value,
             expected: null,
             operator: "=="
+        });
+    }
+}
+function isNull(value, message) {
+    if (!_isNull(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNull] Assertion failed: ${_toSafeString(value)} should be null ${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: null,
+            operator: "!=="
+        });
+    }
+}
+function isNotNull(value, message) {
+    if (_isNull(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNotNull] Assertion failed: ${_toSafeString(value)} should be not null ${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: null,
+            operator: "==="
+        });
+    }
+}
+function isUndefined(value, message) {
+    if (!_isUndefined(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isUndefined] Assertion failed: ${_toSafeString(value)} should be undefined${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: undefined,
+            operator: "!=="
+        });
+    }
+}
+function isNotUndefined(value, message) {
+    if (_isUndefined(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNotUndefined] Assertion failed: ${_toSafeString(value)} should be not undefined${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: undefined,
+            operator: "==="
+        });
+    }
+}
+function isString(value, message) {
+    if (!_isString(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isString] Assertion failed: ${_toSafeString(value)} should be string${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "string",
+            operator: "typeof !=="
+        });
+    }
+}
+function isNotString(value, message) {
+    if (_isString(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNotString] Assertion failed: ${_toSafeString(value)} should be not string${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "string",
+            operator: "typeof ==="
+        });
+    }
+}
+function isNumber(value, message) {
+    if (!_isNumber(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNumber] Assertion failed: ${_toSafeString(value)} should be number${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "number",
+            operator: "typeof !=="
+        });
+    }
+}
+function isNotNumber(value, message) {
+    if (_isNumber(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNotNumber] Assertion failed: ${_toSafeString(value)} should be not number${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "number",
+            operator: "typeof ==="
+        });
+    }
+}
+function isBigInt(value, message) {
+    if (!_isBigInt(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isBigInt] Assertion failed: ${_toSafeString(value)} should be bigint${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "bigint",
+            operator: "typeof !=="
+        });
+    }
+}
+function isNotBigInt(value, message) {
+    if (_isBigInt(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNotBigInt] Assertion failed: ${_toSafeString(value)} should be not bigint${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "bigint",
+            operator: "typeof ==="
+        });
+    }
+}
+function isBoolean(value, message) {
+    if (!_isBoolean(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isBoolean] Assertion failed: ${_toSafeString(value)} should be boolean${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "boolean",
+            operator: "typeof !=="
+        });
+    }
+}
+function isNotBoolean(value, message) {
+    if (_isBoolean(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNotBoolean] Assertion failed: ${_toSafeString(value)} should be not boolean${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "boolean",
+            operator: "typeof ==="
+        });
+    }
+}
+function isSymbol(value, message) {
+    if (!_isSymbol(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isSymbol] Assertion failed: ${_toSafeString(value)} should be symbol${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "symbol",
+            operator: "typeof !=="
+        });
+    }
+}
+function isNotSymbol(value, message) {
+    if (_isSymbol(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNotSymbol] Assertion failed: ${_toSafeString(value)} should be not symbol${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "symbol",
+            operator: "typeof ==="
+        });
+    }
+}
+function isFunction(value, message) {
+    if (!_isFunction(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isFunction] Assertion failed: ${_toSafeString(value)} should be function${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "function",
+            operator: "typeof !=="
+        });
+    }
+}
+function isNotFunction(value, message) {
+    if (_isFunction(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNotFunction] Assertion failed: ${_toSafeString(value)} should be not function${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "function",
+            operator: "typeof ==="
+        });
+    }
+}
+function isObject(value, message) {
+    if (!_isObject(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isObject] Assertion failed: ${_toSafeString(value)} should be object${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "object",
+            operator: "typeof !=="
+        });
+    }
+}
+function isNotObject(value, message) {
+    if (_isObject(value)) {
+        if (message instanceof Error) {
+            throw message;
+        }
+        let errorMessage = `[isNotObject] Assertion failed: ${_toSafeString(value)} should be not object${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: "object",
+            operator: "typeof ==="
         });
     }
 }
@@ -892,6 +1172,24 @@ assert["is"] = is;
 assert["isNot"] = isNot;
 assert["isNullish"] = isNullish;
 assert["isNotNullish"] = isNotNullish;
+assert["isNull"] = isNull;
+assert["isNotNull"] = isNotNull;
+assert["isUndefined"] = isUndefined;
+assert["isNotUndefined"] = isNotUndefined;
+assert["isString"] = isString;
+assert["isNotString"] = isNotString;
+assert["isNumber"] = isNumber;
+assert["isNotNumber"] = isNotNumber;
+assert["isBigInt"] = isBigInt;
+assert["isNotBigInt"] = isNotBigInt;
+assert["isBoolean"] = isBoolean;
+assert["isNotBoolean"] = isNotBoolean;
+assert["isSymbol"] = isSymbol;
+assert["isNotSymbol"] = isNotSymbol;
+assert["isFunction"] = isFunction;
+assert["isNotFunction"] = isNotFunction;
+assert["isObject"] = isObject;
+assert["isNotObject"] = isNotObject;
 assert["match"] = match;
 assert["doesNotMatch"] = doesNotMatch;
 assert["lt"] = lt;

@@ -19,15 +19,15 @@ Basic | `assert();`, `assert.ok();`, `assert.notOk();`, `assert.fail();`
 Equality | `assert.equal();`, `assert.notEqual();`, `assert.strictEqual();`, `assert.notStrictEqual();`, `assert.deepEqual();`, `assert.notDeepEqual();`
 Exceptions | `assert.throws();`, `await assert.rejects();`, `await assert.doesNotReject();`
 Boolean | `assert.isTrue();`, `assert.isFalse();`
-Type | `assert.is();`, `assert.isNot();`, `assert.isNullish();`, `assert.isNotNullish();`
 String | `assert.match();`, `assert.doesNotMatch();`, `assert.stringContains();`, `assert.stringNotContains();`
 Comparison | `assert.lt();`, `assert.lte();`, `assert.gt();`, `assert.gte();`
 Objects | `includes();`, `doesNotInclude();`
+Type | `assert.is();`, `assert.isNot();`, `assert.isNullish();`, `assert.isNotNullish();`, `assert.isNull();`, `assert.isNotNull();`, `assert.isUndefined();`, `assert.isNotUndefined();`, `assert.isString();`, `assert.isNotString();`, `assert.isNumber();`, `assert.isNotNumber();`, `assert.isBigInt();`, `assert.isNotBigInt();`, `assert.isBoolean();`, `assert.isNotBoolean();`, `assert.isSymbol();`, `assert.isNotSymbol();`, `assert.isFunction();`, `assert.isNotFunction();`, `assert.isObject();`, `assert.isNotObject();`
 Testrunner | `assert.testSync();`, `await assert.testAsync();`, `assert.testCheck();`
 
 ---
 
-## Tested on these
+## Tested on these enviroments
 
 - Windows Firefox
 - Windows Chrome
@@ -254,7 +254,7 @@ await assert.rejects(async () => { throw new Error("fail"); }, /fail/);  // pass
 
 Added in v1.0.0
 
-Ensures an async function or promise __resolves__ (does *not* reject).
+Ensures an async function or promise __resolves__ (does _not_ reject).
 
 ````js
 await assert.doesNotReject(async () => 42); // passes
@@ -285,59 +285,6 @@ Ensures value is exactly `false`.
 ````js
 assert.isFalse(false); // passes
 // assert.isFalse(0); // throws an error
-````
-
----
-
-## Type Assertions
-
-### `assert.is(value, expectedType, [message: string | Error]);`
-
-Added in v1.0.0
-
-Ensures a value matches a type or constructor. The expected type can be a string, function or an array of strings and functions.
-
-````js
-assert.is(123, "number"); // passes
-assert.is([], Array); // passes
-assert.is(new Map(), [Map, Object]); // passes
-// assert.is("hi", Number); // throws an error
-````
-
-### `assert.isNot(value, expectedType, [message: string | Error]);`
-
-Added in v1.0.0
-
-Inverse of `is(value, expectedType, [message: string | Error]);`. The expected type can be a string, function or an array of strings and functions.
-
-````js
-assert.isNot("hello", Number); // passes
-assert.isNot([], Set); // passes
-// assert.isNot([], Array); // throws an error
-````
-
-### `assert.isNullish(value, [message: string | Error]);`
-
-Added in v1.0.0
-
-Ensures value is `null` or `undefined`.
-
-````js
-assert.isNullish(undefined); // passes
-assert.isNullish(null); // passes
-// assert.isNullish(0); // throws an error
-````
-
-### `assert.isNotNullish(value, [message: string | Error]);`
-
-Added in v1.0.0
-
-Ensures value is *not* `null` or `undefined`.
-
-````js
-assert.isNotNullish(42); // passes
-assert.isNotNullish("ok"); // passes
-// assert.isNotNullish(null); // throws an error
 ````
 
 ---
@@ -381,7 +328,7 @@ assert.stringContains("hello world", "world"); // passes
 
 Added in v1.0.0
 
-Ensures a string *does not* contain a substring.
+Ensures a string _does not_ contain a substring.
 
 ````js
 assert.stringNotContains("hello", "z"); // passes
@@ -496,6 +443,257 @@ assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 43}); // pa
 
 ---
 
+## Type Assertions
+
+### `assert.is(value, expectedType: string | function | Array<string | function>, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures a value matches a type or constructor. The expected type can be a string, function or an array of strings and functions.
+
+````js
+assert.is(123, "number"); // passes
+assert.is([], Array); // passes
+assert.is(new Map(), [Map, Object]); // passes
+// assert.is("hi", Number); // throws an error
+````
+
+### `assert.isNot(value, expectedType: string | function | Array<string | function>, [message: string | Error]);`
+
+Added in v1.0.0
+
+Inverse of `is(value, expectedType, [message: string | Error]);`. The expected type can be a string, function or an array of strings and functions.
+
+````js
+assert.isNot("hello", Number); // passes
+assert.isNot([], Set); // passes
+// assert.isNot([], Array); // throws an error
+````
+
+### `assert.isNullish(value, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures value is `null` or `undefined`.
+
+````js
+assert.isNullish(undefined); // passes
+assert.isNullish(null); // passes
+// assert.isNullish(0); // throws an error
+````
+
+### `assert.isNotNullish(value, [message: string | Error]);`
+
+Added in v1.0.0
+
+Ensures value is _not_ `null` or `undefined`.
+
+````js
+assert.isNotNullish(42); // passes
+assert.isNotNullish("ok"); // passes
+// assert.isNotNullish(null); // throws an error
+````
+
+### `assert.isNull(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `null`.
+
+````js
+assert.isNull(null); // passes
+// assert.isNull(0); // throws an error
+````
+
+### `assert.isNotNull(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is _not_ `null`.
+
+````js
+assert.isNotNull("ok"); // passes
+// assert.isNotNull(null); // throws an error
+````
+
+### `assert.isUndefined(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `undefined`.
+
+````js
+assert.isUndefined(undefined); // passes
+// assert.isUndefined(0); // throws an error
+````
+
+### `assert.isNotUndefined(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is _not_ `undefined`.
+
+````js
+assert.isNotUndefined("ok"); // passes
+// assert.isNotUndefined(undefined); // throws an error
+````
+
+### `assert.isString(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `string`.
+
+````js
+assert.isString("ok"); // passes
+// assert.isString(null); // throws an error
+````
+
+### `assert.isNotString(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is _not_ `string`.
+
+````js
+assert.isNotString(null); // passes
+// assert.isNotString("ok"); // throws an error
+````
+
+### `assert.isNumber(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `number`.
+
+````js
+assert.isNumber(42); // passes
+// assert.isNumber(null); // throws an error
+````
+
+### `assert.isNotNumber(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is _not_ `number`.
+
+````js
+assert.isNotNumber(null); // passes
+// assert.isNotNumber(42); // throws an error
+````
+
+### `assert.isBigInt(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `bigint`.
+
+````js
+assert.isBigInt(42n); // passes
+// assert.isBigInt(null); // throws an error
+````
+
+### `assert.isNotBigInt(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is _not_ `bigint`.
+
+````js
+assert.isNotBigInt(null); // passes
+// assert.isNotBigInt(42n); // throws an error
+````
+
+### `assert.isBoolean(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `boolean`.
+
+````js
+assert.isBoolean(true); // passes
+// assert.isBoolean(null); // throws an error
+````
+
+### `assert.isNotBoolean(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is _not_ `boolean`.
+
+````js
+assert.isNotBoolean(null); // passes
+// assert.isNotBoolean(true); // throws an error
+````
+
+### `assert.isSymbol(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `symbol`.
+
+````js
+assert.isSymbol(Symbol("foo")); // passes
+// assert.isSymbol(null); // throws an error
+````
+
+### `assert.isNotSymbol(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is _not_ `symbol`.
+
+````js
+assert.isNotSymbol(null); // passes
+// assert.isNotSymbol(Symbol("foo")); // throws an error
+````
+
+### `assert.isFunction(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `function`.
+
+````js
+assert.isFunction(assert); // passes
+// assert.isFunction(null); // throws an error
+````
+
+### `assert.isNotFunction(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is _not_ `function`.
+
+````js
+assert.isNotFunction(null); // passes
+// assert.isNotFunction(assert); // throws an error
+````
+
+### `assert.isObject(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `object` and value is _not_ `null`.
+
+````js
+assert.isObject({a: 1}); // passes
+// assert.isObject(null); // throws an error
+````
+
+### `assert.isNotObject(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is _not_ `object` or value is `null`.
+
+````js
+assert.isNotObject(null); // passes
+// assert.isNotObject({a: 1}); // throws an error
+````
+
+---
+
 ## Testrunner
 
 ### `assert.testSync(block): { ok: true; value: any } | { ok: false; error: Error }`
@@ -522,7 +720,7 @@ Asynchronously runs a block of code and returns either its result or the caught 
 (async () => {
   const result = await assert.testAsync(async function () { return 42; });
   if (assert.testCheck(result)) {
-    console.log("passed"); */
+    console.log("passed");
   } else {
     console.error("failed");
   }

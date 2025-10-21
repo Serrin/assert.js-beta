@@ -141,12 +141,10 @@ function autoTestSync () {
   unitTest("assert.isNullish(); 04", true, () => assert.isNullish(0, "lorem"));
 
   unitTest("assert.isNotNullish(); 01", false, () => assert.isNotNullish(42));
-  unitTest("assert.isNotNullish(); 01", false, () => assert.isNotNullish("ok"));
-  unitTest("assert.isNotNullish(); 01", true, () => assert.isNotNullish(undefined));
-  unitTest("assert.isNotNullish(); 01", true, () => assert.isNotNullish(null));
-  unitTest("assert.isNotNullish(); 01", true,
-    () => assert.isNotNullish(null, "lorem")
-  );
+  unitTest("assert.isNotNullish(); 02", false, () => assert.isNotNullish("ok"));
+  unitTest("assert.isNotNullish(); 03", true, () => assert.isNotNullish(undefined));
+  unitTest("assert.isNotNullish(); 04", true, () => assert.isNotNullish(null));
+  unitTest("assert.isNotNullish(); 05", true, () => assert.isNotNullish(null, "lorem"));
 
   unitTest("assert.match(); 01", false, () => assert.match("hello world", /world/));
   unitTest("assert.match(); 02", true, () => assert.match("hello", /bye/));
@@ -287,6 +285,80 @@ function autoTestSync () {
 
   unitTest("assert.includes(); 33", false, () => assert.includes(Object("lorem ipsum"), {keyOrValue: "lorem"}));
   unitTest("assert.includes(); 34", true, () => assert.includes(Object("lorem ipsum"), {keyOrValue: "42"}));
+
+/* innen */
+
+  unitTest("assert.isNull(); 01", false, () => assert.isNull(null));
+  unitTest("assert.isNull(); 02", true, () => assert.isNull(42));
+  unitTest("assert.isNull(); 03", true, () => assert.isNull(42, "foo"));
+
+  unitTest("assert.isNotNull(); 01", false, () => assert.isNotNull(42));
+  unitTest("assert.isNotNull(); 02", true, () => assert.isNotNull(null));
+  unitTest("assert.isNotNull(); 03", true, () => assert.isNotNull(null, "foo"));
+
+  unitTest("assert.isUndefined(); 01", false, () => assert.isUndefined(undefined));
+  unitTest("assert.isUndefined(); 02", true, () => assert.isUndefined(42));
+  unitTest("assert.isUndefined(); 03", true, () => assert.isUndefined(42, "foo"));
+
+  unitTest("assert.isNotUndefined(); 01", false, () => assert.isNotUndefined(42));
+  unitTest("assert.isNotUndefined(); 02", true, () => assert.isNotUndefined(undefined));
+  unitTest("assert.isNotUndefined(); 03", true, () => assert.isNotUndefined(undefined, "foo"));
+
+  unitTest("assert.isString(); 01", false, () => assert.isString("bar"));
+  unitTest("assert.isString(); 02", true, () => assert.isString(42));
+  unitTest("assert.isString(); 03", true, () => assert.isString(42, "foo"));
+
+  unitTest("assert.isNotString(); 01", false, () => assert.isNotString(42));
+  unitTest("assert.isNotString(); 02", true, () => assert.isNotString("bar"));
+  unitTest("assert.isNotString(); 03", true, () => assert.isNotString("bar", "foo"));
+
+  unitTest("assert.isNumber(); 01", false, () => assert.isNumber(42));
+  unitTest("assert.isNumber(); 02", true, () => assert.isNumber(null));
+  unitTest("assert.isNumber(); 03", true, () => assert.isNumber(null, "foo"));
+
+  unitTest("assert.isNotNumber(); 01", false, () => assert.isNotNumber(null));
+  unitTest("assert.isNotNumber(); 02", true, () => assert.isNotNumber(42));
+  unitTest("assert.isNotNumber(); 03", true, () => assert.isNotNumber(42, "foo"));
+
+  unitTest("assert.isBigInt(); 01", false, () => assert.isBigInt(42n));
+  unitTest("assert.isBigInt(); 02", true, () => assert.isBigInt(null));
+  unitTest("assert.isBigInt(); 03", true, () => assert.isBigInt(null, "foo"));
+
+  unitTest("assert.isNotBigInt(); 01", false, () => assert.isNotBigInt(null));
+  unitTest("assert.isNotBigInt(); 02", true, () => assert.isNotBigInt(42n));
+  unitTest("assert.isNotBigInt(); 03", true, () => assert.isNotBigInt(42n, "foo"));
+
+  unitTest("assert.isBoolean(); 01", false, () => assert.isBoolean(true));
+  unitTest("assert.isBoolean(); 02", true, () => assert.isBoolean(null));
+  unitTest("assert.isBoolean(); 03", true, () => assert.isBoolean(null, "foo"));
+
+  unitTest("assert.isNotBoolean(); 01", false, () => assert.isNotBoolean(null));
+  unitTest("assert.isNotBoolean(); 02", true, () => assert.isNotBoolean(true));
+  unitTest("assert.isNotBoolean(); 03", true, () => assert.isNotBoolean(false, "foo"));
+
+  unitTest("assert.isSymbol(); 01", false, () => assert.isSymbol(Symbol(42)));
+  unitTest("assert.isSymbol(); 02", true, () => assert.isSymbol(null));
+  unitTest("assert.isSymbol(); 03", true, () => assert.isSymbol(null, "foo"));
+
+  unitTest("assert.isNotSymbol(); 01", false, () => assert.isNotSymbol(42));
+  unitTest("assert.isNotSymbol(); 02", true, () => assert.isNotSymbol(Symbol(42)));
+  unitTest("assert.isNotSymbol(); 03", true, () => assert.isNotSymbol(Symbol(42), "foo"));
+
+  unitTest("assert.isFunction(); 01", false, () => assert.isFunction(() => {}));
+  unitTest("assert.isFunction(); 02", true, () => assert.isFunction(null));
+  unitTest("assert.isFunction(); 03", true, () => assert.isFunction(null, "foo"));
+
+  unitTest("assert.isNotFunction(); 01", false, () => assert.isNotFunction(null));
+  unitTest("assert.isNotFunction(); 02", true, () => assert.isNotFunction(() => {}));
+  unitTest("assert.isNotFunction(); 03", true, () => assert.isNotFunction(() => {}, "foo"));
+
+  unitTest("assert.isObject(); 01", false, () => assert.isObject({}));
+  unitTest("assert.isObject(); 02", true, () => assert.isObject(null));
+  unitTest("assert.isObject(); 03", true, () => assert.isObject(42, "foo"));
+
+  unitTest("assert.isNotObject(); 01", false, () => assert.isNotObject(null));
+  unitTest("assert.isNotObject(); 02", true, () => assert.isNotObject({}));
+  unitTest("assert.isNotObject(); 03", true, () => assert.isNotObject({}, "foo"));
 
   console.log("\nEnd of the sync test.\n");
 }

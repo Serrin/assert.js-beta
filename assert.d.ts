@@ -20,6 +20,7 @@ type IncludesOptions = {
     keyOrValue: any;
     value?: any;
 };
+type Nullish = null | undefined;
 declare class AssertionError extends Error {
     expected: any;
     actual: any;
@@ -50,8 +51,26 @@ declare namespace assert {
     var isFalse: (condition: unknown, message?: any) => asserts condition is false;
     var is: (value: any, expectedType: ExpectedType, message?: any) => void;
     var isNot: (value: any, expectedType: ExpectedType, message?: any) => void;
-    var isNullish: (value: unknown, message?: any) => asserts value is null | undefined;
+    var isNullish: (value: unknown, message?: any) => asserts value is Nullish;
     var isNotNullish: (value: unknown, message?: any) => asserts value is NonNullable<unknown>;
+    var isNull: (value: unknown, message?: any) => asserts value is null;
+    var isNotNull: (value: unknown, message?: any) => asserts value is NonNullable<unknown>;
+    var isUndefined: (value: unknown, message?: any) => asserts value is undefined;
+    var isNotUndefined: (value: unknown, message?: any) => void;
+    var isString: (value: unknown, message?: any) => asserts value is string;
+    var isNotString: (value: unknown, message?: any) => void;
+    var isNumber: (value: unknown, message?: any) => asserts value is number;
+    var isNotNumber: (value: unknown, message?: any) => void;
+    var isBigInt: (value: unknown, message?: any) => asserts value is bigint;
+    var isNotBigInt: (value: unknown, message?: any) => void;
+    var isBoolean: (value: unknown, message?: any) => asserts value is boolean;
+    var isNotBoolean: (value: unknown, message?: any) => void;
+    var isSymbol: (value: unknown, message?: any) => asserts value is symbol;
+    var isNotSymbol: (value: unknown, message?: any) => void;
+    var isFunction: (value: unknown, message?: any) => asserts value is Function;
+    var isNotFunction: (value: unknown, message?: any) => void;
+    var isObject: (value: unknown, message?: any) => asserts value is object;
+    var isNotObject: (value: unknown, message?: any) => void;
     var match: (string: StringLike, regexp: RegExp, message?: any) => void;
     var doesNotMatch: (string: StringLike, regexp: RegExp, message?: any) => void;
     var lt: (value1: any, value2: any, message?: any) => void;
