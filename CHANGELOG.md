@@ -14,6 +14,10 @@ First stable version.
 
 - `assert.includes();`
 - `assert.doesNotInclude();`
+- `assert.isEmpty()`
+- `assert.isNotEmpty();`
+- `assert.isPrimitive()`
+- `assert.isNotPrimitive();`
 - `assert.isNull();`
 - `assert.isNotNull();`
 - `assert.isUndefined();`

@@ -2,7 +2,7 @@
 
 Latest version: 1.0.1
 
-Date: 2025-10-17T18:20:04.454Z
+Date: 2025-10-22T17:36:34.617Z
 
 A modern, zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.
 Implements and extends the [CommonJS Unit Testing 1.0 spec](https://wiki.commonjs.org/wiki/Unit_Testing/1.0).
@@ -21,8 +21,8 @@ Exceptions | `assert.throws();`, `await assert.rejects();`, `await assert.doesNo
 Boolean | `assert.isTrue();`, `assert.isFalse();`
 String | `assert.match();`, `assert.doesNotMatch();`, `assert.stringContains();`, `assert.stringNotContains();`
 Comparison | `assert.lt();`, `assert.lte();`, `assert.gt();`, `assert.gte();`
-Objects | `includes();`, `doesNotInclude();`
-Type | `assert.is();`, `assert.isNot();`, `assert.isNullish();`, `assert.isNotNullish();`, `assert.isNull();`, `assert.isNotNull();`, `assert.isUndefined();`, `assert.isNotUndefined();`, `assert.isString();`, `assert.isNotString();`, `assert.isNumber();`, `assert.isNotNumber();`, `assert.isBigInt();`, `assert.isNotBigInt();`, `assert.isBoolean();`, `assert.isNotBoolean();`, `assert.isSymbol();`, `assert.isNotSymbol();`, `assert.isFunction();`, `assert.isNotFunction();`, `assert.isObject();`, `assert.isNotObject();`
+Objects | `assert.includes();`, `assert.doesNotInclude();`, `assert.isEmpty();`, `assert.isNotEmpty();`
+Type | `assert.is();`, `assert.isNot();`, `assert.isPrimitive();`, `assert.isNotPrimitive();`, `assert.isNullish();`, `assert.isNotNullish();`, `assert.isNull();`, `assert.isNotNull();`, `assert.isUndefined();`, `assert.isNotUndefined();`, `assert.isString();`, `assert.isNotString();`, `assert.isNumber();`, `assert.isNotNumber();`, `assert.isBigInt();`, `assert.isNotBigInt();`, `assert.isBoolean();`, `assert.isNotBoolean();`, `assert.isSymbol();`, `assert.isNotSymbol();`, `assert.isFunction();`, `assert.isNotFunction();`, `assert.isObject();`, `assert.isNotObject();`
 Testrunner | `assert.testSync();`, `await assert.testAsync();`, `assert.testCheck();`
 
 ---
@@ -79,7 +79,7 @@ Added in v1.0.0
 Returns the library version string.
 
 ````js
-console.log(assert.VERSION); // "assert.js v1.0.0"
+console.log(assert.VERSION); // "assert.js v1.0.1"
 ````
 
 ---
@@ -387,7 +387,7 @@ assert.gte(5, 3); // passes
 
 ---
 
-## Objects
+## Objects Assertions
 
 ### `assert.includes(container, options: {keyOrValue, [value] }, [message: string | Error]);`
 
@@ -441,6 +441,35 @@ assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 43}); // pa
 // assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 42}); // throws an error
 ````
 
+### `assert.isEmpty(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is empty.
+
+- `null`, `undefined`, and `NaN` are empty.
+- Arrays, TypedArrays, and strings are empty if length === 0.
+- Maps and Sets are empty if size === 0.
+- ArrayBuffer and DataView are empty if byteLength === 0.
+- Iterable objects are empty if they have no elements.
+- Plain objects are empty if they have no own properties.
+
+````js
+assert.isEmpty(new Map()); // passes
+// assert.isEmpty([1, 2, 3]); // throws an error
+````
+
+### `assert.isNotEmpty(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Inverse of `assert.isEmpty(value, [message: string | Error]);`.
+
+````js
+assert.isNotEmpty([1, 2, 3]); // passes
+// assert.isNotEmpty(new Map()); // throws an error
+````
+
 ---
 
 ## Type Assertions
@@ -468,6 +497,28 @@ Inverse of `is(value, expectedType, [message: string | Error]);`. The expected t
 assert.isNot("hello", Number); // passes
 assert.isNot([], Set); // passes
 // assert.isNot([], Array); // throws an error
+````
+
+### `assert.isPrimitive(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is not `object` or `function`.
+
+````js
+assert.isPrimitive(42); // passes
+// assert.isPrimitive([]]); // throws an error
+````
+
+### `assert.isNotPrimitive(value, [message: string | Error]);`
+
+Added in v1.0.1
+
+Ensures value is `object` or `function`.
+
+````js
+assert.isNotPrimitive([]); // passes
+// assert.isNotPrimitive(42); // throws an error
 ````
 
 ### `assert.isNullish(value, [message: string | Error]);`

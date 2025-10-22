@@ -33,7 +33,7 @@ body {
 
 <p>Latest version: 1.0.1</p>
 
-<p>Date: 2025-10-17T18:20:04.454Z</p>
+<p>Date: 2025-10-22T17:36:34.617Z</p>
 
 <p>A modern, zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.</p>
 
@@ -96,12 +96,12 @@ body {
   <tr>
   <tr>
     <td>Objects</td>
-    <td><code>includes();</code>, <code>doesNotInclude();</code></td>
+    <td><code>assert.includes();</code>, <code>assert.doesNotInclude();</code>, <code>assert.isEmpty();</code>, <code>assert.isNotEmpty();</code></td>
   </tr>
   <tr>
     <td>Type</td>
-    <td><code>assert.is();</code>, <code>assert.isNot();</code>, <code>assert.isNullish();</code>, <code>assert.isNotNullish();</code>, <code>assert.isNull();</code>, <code>assert.isNotNull();</code>, <code>assert.isUndefined();</code>, <code>assert.isNotUndefined();</code>, <code>assert.isString();</code>, <code>assert.isNotString();</code>, <code>assert.isNumber();</code>, <code>assert.isNotNumber();</code>, <code>assert.isBigInt();</code>, <code>assert.isNotBigInt();</code>, <code>assert.isBoolean();</code>, <code>assert.isNotBoolean();</code>, <code>assert.isSymbol();</code>, <code>assert.isNotSymbol();</code>, <code>assert.isFunction();</code>, <code>assert.isNotFunction();</code>, <code>assert.isObject();</code>, <code>assert.isNotObject();</code></td>
-  </tr>  
+    <td><code>assert.is();</code>, <code>assert.isNot();</code>, <code>assert.isPrimitive();</code>, <code>assert.isNotPrimitive();</code>, <code>assert.isNullish();</code>, <code>assert.isNotNullish();</code>, <code>assert.isNull();</code>, <code>assert.isNotNull();</code>, <code>assert.isUndefined();</code>, <code>assert.isNotUndefined();</code>, <code>assert.isString();</code>, <code>assert.isNotString();</code>, <code>assert.isNumber();</code>, <code>assert.isNotNumber();</code>, <code>assert.isBigInt();</code>, <code>assert.isNotBigInt();</code>, <code>assert.isBoolean();</code>, <code>assert.isNotBoolean();</code>, <code>assert.isSymbol();</code>, <code>assert.isNotSymbol();</code>, <code>assert.isFunction();</code>, <code>assert.isNotFunction();</code>, <code>assert.isObject();</code>, <code>assert.isNotObject();</code></td>
+  </tr>
   <tr>
     <td>Testrunner</td>
     <td><code>assert.testSync();</code>, <code>await assert.testAsync();</code>, <code>assert.testCheck();</code></td>
@@ -157,7 +157,7 @@ globalThis.assert = assert;</pre>
 
 <p>Returns the library version string.</p>
 
-<pre>console.log(assert.VERSION); // "assert.js v1.0.0"</pre>
+<pre>console.log(assert.VERSION); // "assert.js v1.0.1"</pre>
 
 <hr>
 
@@ -416,7 +416,7 @@ assert.gte(5, 3); // passes
 
 <hr/>
 
-<h2>Objects</h2>
+<h2>Objects Assertions</h2>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.includes(container, options: {keyOrValue, [value] }, [message: string | Error]);</h3>
 
@@ -440,8 +440,7 @@ assert.gte(5, 3); // passes
   <li>Iterator objects</li>
 </ul>
 
-<pre>
-assert.includes([1, 2, 3], {keyOrValue: 3 }); // passes
+<pre>assert.includes([1, 2, 3], {keyOrValue: 3 }); // passes
 assert.includes({"x": 42}), {keyOrValue: "x"}); // passes
 assert.includes({"x": 42}, {keyOrValue: "x", value: 42}); // passes
 assert.includes(new Map([["x", 42]]), {keyOrValue: "x"}); // passes
@@ -450,8 +449,7 @@ assert.includes(new Map([["x", 42]]), {keyOrValue: "x", value: 42}); // passes
 // assert.includes({"x": 42}, {keyOrValue: "y"}); // throws an error
 // assert.includes({"x": 42}, {keyOrValue: "x", value: 43}); // throws an error
 // assert.includes(new Map([["x", 42]]), {keyOrValue: "y"}); // throws an error
-// assert.includes(new Map([["x", 42]]), {keyOrValue: "x", value: 43}); // throws an error
-</pre>
+// assert.includes(new Map([["x", 42]]), {keyOrValue: "x", value: 43}); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.doesNotInclude(container, options: {keyOrValue, [value] }, [message: string | Error]);</h3>
 
@@ -459,8 +457,7 @@ assert.includes(new Map([["x", 42]]), {keyOrValue: "x", value: 42}); // passes
 
 <p>Inverse of <code>assert.includes(container, options: {keyOrValue, [value] }, [message: string | Error]);</code>.</p>
 
-<pre>
-assert.doesNotInclude([1, 2, 3], 4); // passes
+<pre>assert.doesNotInclude([1, 2, 3], 4); // passes
 assert.doesNotInclude({"x": 42}, {keyOrValue: "y"}); // passes
 assert.doesNotInclude({"x": 42}, {keyOrValue: "x", value: 43}); // passes
 assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "y"}); // passes
@@ -469,8 +466,34 @@ assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 43}); // pa
 // assert.doesNotInclude({"x": 42}, {keyOrValue: "x"}); // throws an error
 // assert.doesNotInclude({"x": 42}, {keyOrValue: "x", value: 42}); // throws an error
 // assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x"}); // throws an error
-// assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 42}); // throws an error
-</pre>
+// assert.doesNotInclude(new Map([["x", 42]]), {keyOrValue: "x", value: 42}); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.isEmpty(value, [message: string | Error]);</h3>
+
+<p>Added in v1.0.1</p>
+
+<p>Ensures value is empty.</p>
+
+<ul>
+  <li><code>null</code>, <code>undefined</code>, and <code>NaN</code> are empty.</li>
+  <li>Arrays, TypedArrays, and strings are empty if length === 0.</li>
+  <li>Maps and Sets are empty if size === 0.</li>
+  <li>ArrayBuffer and DataView are empty if byteLength === 0.</li>
+  <li>Iterable objects are empty if they have no elements.</li>
+  <li>Plain objects are empty if they have no own properties.</li>
+</ul>
+
+<pre>assert.isEmpty(new Map()); // passes
+// assert.isEmpty([1, 2, 3]); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotEmpty(value, [message: string | Error]);</h3>
+
+<p>Added in v1.0.1</p>
+
+<p>Inverse of <code>assert.isEmpty(value, [message: string | Error]);</code>.</p>
+
+<pre>assert.isNotEmpty([1, 2, 3]); // passes
+// assert.isNotEmpty(new Map()); // throws an error</pre>
 
 <hr>
 
@@ -495,8 +518,25 @@ assert.is(new Map(), [Map, Object]); // passes
 
 <pre>assert.isNot("hello", Number); // passes
 assert.isNot([], Set); // passes
-// assert.isNot([], Array); // throws an error
-</pre>
+// assert.isNot([], Array); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.isPrimitive(value, [message: string | Error]);</h3>
+
+<p>Added in v1.0.1</p>
+
+<p>Ensures value is not <code>object</code> or <code>function</code>.</p>
+
+<pre>assert.isPrimitive(42); // passes
+// assert.isPrimitive([]]); // throws an error</pre>
+
+<h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotPrimitive(value, [message: string | Error]);</h3>
+
+<p>Added in v1.0.1</p>
+
+<p>Ensures value is <code>object</code> or <code>function</code>.</p>
+
+<pre>assert.isNotPrimitive([]); // passes
+// assert.isNotPrimitive(42); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNullish(value, [message: string | Error]);</h3>
 
@@ -524,10 +564,8 @@ assert.isNotNullish("ok"); // passes
 
 <p>Ensures value is <code>null</code>.</p>
 
-<pre>
-assert.isNull(null); // passes
-// assert.isNull(0); // throws an error
-</pre>
+<pre>assert.isNull(null); // passes
+// assert.isNull(0); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotNull(value, [message: string | Error]);</h3>
 
@@ -535,10 +573,8 @@ assert.isNull(null); // passes
 
 <p>Ensures value is <em>not</em> <code>null</code>.</p>
 
-<pre>
-assert.isNotNull("ok"); // passes
-// assert.isNotNull(null); // throws an error
-</pre>
+<pre>assert.isNotNull("ok"); // passes
+// assert.isNotNull(null); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isUndefined(value, [message: string | Error]);</h3>
 
@@ -546,10 +582,8 @@ assert.isNotNull("ok"); // passes
 
 <p>Ensures value is <code>undefined</code>.</p>
 
-<pre>
-assert.isUndefined(undefined); // passes
-// assert.isUndefined(0); // throws an error
-</pre>
+<pre>assert.isUndefined(undefined); // passes
+// assert.isUndefined(0); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotUndefined(value, [message: string | Error]);</h3>
 
@@ -557,10 +591,8 @@ assert.isUndefined(undefined); // passes
 
 <p>Ensures value is <em>not</em> <code>undefined</code>.</p>
 
-<pre>
-assert.isNotUndefined("ok"); // passes
-// assert.isNotUndefined(undefined); // throws an error
-</pre>
+<pre>assert.isNotUndefined("ok"); // passes
+// assert.isNotUndefined(undefined); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isString(value, [message: string | Error]);</h3>
 
@@ -568,10 +600,8 @@ assert.isNotUndefined("ok"); // passes
 
 </p>Ensures value is <code>string</code>.</p>
 
-<pre>
-assert.isString("ok"); // passes
-// assert.isString(null); // throws an error
-</pre>
+<pre>assert.isString("ok"); // passes
+// assert.isString(null); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotString(value, [message: string | Error]);</h3>
 
@@ -579,10 +609,8 @@ assert.isString("ok"); // passes
 
 <p>Ensures value is <em>not</em> <code>string</code>.</p>
 
-<pre>
-assert.isNotString(null); // passes
-// assert.isNotString("ok"); // throws an error
-</pre>
+<pre>assert.isNotString(null); // passes
+// assert.isNotString("ok"); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNumber(value, [message: string | Error]);</h3>
 
@@ -590,10 +618,8 @@ assert.isNotString(null); // passes
 
 <p>Ensures value is <code>number</code>.</p>
 
-<pre>
-assert.isNumber(42); // passes
-// assert.isNumber(null); // throws an error
-</pre>
+<pre>assert.isNumber(42); // passes
+// assert.isNumber(null); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotNumber(value, [message: string | Error]);</h3>
 
@@ -601,10 +627,8 @@ assert.isNumber(42); // passes
 
 <p>Ensures value is <em>not</em> <code>number</code>.</p>
 
-<pre>
-assert.isNotNumber(null); // passes
-// assert.isNotNumber(42); // throws an error
-</pre>
+<pre>assert.isNotNumber(null); // passes
+// assert.isNotNumber(42); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isBigInt(value, [message: string | Error]);</h3>
 
@@ -612,10 +636,8 @@ assert.isNotNumber(null); // passes
 
 <p>Ensures value is <code>bigint</code>.</p>
 
-<pre>
-assert.isBigInt(42n); // passes
-// assert.isBigInt(null); // throws an error
-</pre>
+<pre>assert.isBigInt(42n); // passes
+// assert.isBigInt(null); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotBigInt(value, [message: string | Error]);</h3>
 
@@ -623,10 +645,8 @@ assert.isBigInt(42n); // passes
 
 <p>Ensures value is <em>not</em> <code>bigint</code>.</p>
 
-<pre>
-assert.isNotBigInt(null); // passes
-// assert.isNotBigInt(42n); // throws an error
-</pre>
+<pre>assert.isNotBigInt(null); // passes
+// assert.isNotBigInt(42n); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isBoolean(value, [message: string | Error]);</h3>
 
@@ -634,10 +654,8 @@ assert.isNotBigInt(null); // passes
 
 <p>Ensures value is <code>boolean</code>.</p>
 
-<pre>
-assert.isBoolean(true); // passes
-// assert.isBoolean(null); // throws an error
-</pre>
+<pre>assert.isBoolean(true); // passes
+// assert.isBoolean(null); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotBoolean(value, [message: string | Error]);</h3>
 
@@ -645,10 +663,8 @@ assert.isBoolean(true); // passes
 
 <p>Ensures value is <em>not</em> <code>boolean</code>.</p>
 
-<pre>
-assert.isNotBoolean(null); // passes
-// assert.isNotBoolean(true); // throws an error
-</pre>
+<pre>assert.isNotBoolean(null); // passes
+// assert.isNotBoolean(true); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isSymbol(value, [message: string | Error]);</h3>
 
@@ -656,10 +672,8 @@ assert.isNotBoolean(null); // passes
 
 <p>Ensures value is <code>symbol</code>.</p>
 
-<pre>
-assert.isSymbol(Symbol("foo")); // passes
-// assert.isSymbol(null); // throws an error
-</pre>
+<pre>assert.isSymbol(Symbol("foo")); // passes
+// assert.isSymbol(null); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotSymbol(value, [message: string | Error]);</h3>
 
@@ -667,10 +681,8 @@ assert.isSymbol(Symbol("foo")); // passes
 
 <p>Ensures value is <em>not</em> <code>symbol</code>.</p>
 
-<pre>
-assert.isNotSymbol(null); // passes
-// assert.isNotSymbol(Symbol("foo")); // throws an error
-</pre>
+<pre>assert.isNotSymbol(null); // passes
+// assert.isNotSymbol(Symbol("foo")); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isFunction(value, [message: string | Error]);</h3>
 
@@ -678,10 +690,8 @@ assert.isNotSymbol(null); // passes
 
 <p>Ensures value is <code>function</code>.</p>
 
-<pre>
-assert.isFunction(assert); // passes
-// assert.isFunction(null); // throws an error
-</pre>
+<pre>assert.isFunction(assert); // passes
+// assert.isFunction(null); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotFunction(value, [message: string | Error]);</h3>
 
@@ -689,10 +699,8 @@ assert.isFunction(assert); // passes
 
 <p>Ensures value is <em>not</em> <code>function</code>.</p>
 
-<pre>
-assert.isNotFunction(null); // passes
-// assert.isNotFunction(assert); // throws an error
-</pre>
+<pre>assert.isNotFunction(null); // passes
+// assert.isNotFunction(assert); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isObject(value, [message: string | Error]);</h3>
 
@@ -700,10 +708,8 @@ assert.isNotFunction(null); // passes
 
 <p>Ensures value is <code>object</code> and value is <em>not</em> <code>null</code>.</p>
 
-<pre>
-assert.isObject({a: 1}); // passes
-// assert.isObject(null); // throws an error
-</pre>
+<pre>assert.isObject({a: 1}); // passes
+// assert.isObject(null); // throws an error</pre>
 
 <h3 class="round-25 padding font-monospace bg-lightblue">assert.isNotObject(value, [message: string | Error]);</h3>
 
@@ -711,10 +717,8 @@ assert.isObject({a: 1}); // passes
 
 <p>Ensures value is <em>not</em> <code>object</code> or value is <code>null</code>.</p>
 
-<pre>
-assert.isNotObject(null); // passes
-// assert.isNotObject({a: 1}); // throws an error
-</pre>
+<pre>assert.isNotObject(null); // passes
+// assert.isNotObject({a: 1}); // throws an error</pre>
 
 <hr>
 

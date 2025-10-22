@@ -2,7 +2,7 @@
 "use strict";
 
 
-/* assert.js v1.0.0 testcases for Node.js environment */
+/* assert.js v1.0.1 testcases for Node.js environment */
 
 
 // Import the assert function
@@ -359,6 +359,76 @@ function autoTestSync () {
   unitTest("assert.isNotObject(); 01", false, () => assert.isNotObject(null));
   unitTest("assert.isNotObject(); 02", true, () => assert.isNotObject({}));
   unitTest("assert.isNotObject(); 03", true, () => assert.isNotObject({}, "foo"));
+
+  unitTest("assert.isPrimitive(); 01", false, () => assert.isPrimitive(null));
+  unitTest("assert.isPrimitive(); 02", false, () => assert.isPrimitive(undefined));
+  unitTest("assert.isPrimitive(); 03", false, () => assert.isPrimitive(""));
+  unitTest("assert.isPrimitive(); 04", false, () => assert.isPrimitive(42));
+  unitTest("assert.isPrimitive(); 05", false, () => assert.isPrimitive(42n));
+  unitTest("assert.isPrimitive(); 06", false, () => assert.isPrimitive(true));
+  unitTest("assert.isPrimitive(); 07", false, () => assert.isPrimitive(Symbol(42)));
+  unitTest("assert.isPrimitive(); 08", true, () => assert.isPrimitive(() => {}));
+  unitTest("assert.isPrimitive(); 09", true, () => assert.isPrimitive({}));
+
+  unitTest("assert.isNotPrimitive(); 01", true, () => assert.isNotPrimitive(null));
+  unitTest("assert.isNotPrimitive(); 02", true, () => assert.isNotPrimitive(undefined));
+  unitTest("assert.isNotPrimitive(); 03", true, () => assert.isNotPrimitive(""));
+  unitTest("assert.isNotPrimitive(); 04", true, () => assert.isNotPrimitive(42));
+  unitTest("assert.isNotPrimitive(); 05", true, () => assert.isNotPrimitive(42n));
+  unitTest("assert.isNotPrimitive(); 06", true, () => assert.isNotPrimitive(true));
+  unitTest("assert.isNotPrimitive(); 07", true, () => assert.isNotPrimitive(Symbol(42)));
+  unitTest("assert.isNotPrimitive(); 08", false, () => assert.isNotPrimitive(() => {}));
+  unitTest("assert.isNotPrimitive(); 09", false, () => assert.isNotPrimitive({}));
+
+  unitTest("assert.isEmpty(); 01", false, () => assert.isEmpty(null));
+  unitTest("assert.isEmpty(); 02", false, () => assert.isEmpty(undefined));
+  unitTest("assert.isEmpty(); 03", false, () => assert.isEmpty(NaN));
+  unitTest("assert.isEmpty(); 04", false, () => assert.isEmpty([]));
+  unitTest("assert.isEmpty(); 05", false, () => assert.isEmpty(new Uint16Array()));
+  unitTest("assert.isEmpty(); 06", false, () => assert.isEmpty(""));
+  unitTest("assert.isEmpty(); 07", false, () => assert.isEmpty(new Map()));
+  unitTest("assert.isEmpty(); 08", false, () => assert.isEmpty(new Set()));
+  unitTest("assert.isEmpty(); 09", false, () => assert.isEmpty(new ArrayBuffer()));
+  unitTest("assert.isEmpty(); 10", false, () => assert.isEmpty(new DataView(new ArrayBuffer())));
+  unitTest("assert.isEmpty(); 11", false, () => assert.isEmpty([].values()));
+  unitTest("assert.isEmpty(); 12", false, () => assert.isEmpty({}));
+
+  unitTest("assert.isEmpty(); 14", true, () => assert.isEmpty(42));
+  unitTest("assert.isEmpty(); 15", true, () => assert.isEmpty([42]));
+  unitTest("assert.isEmpty(); 16", true, () => assert.isEmpty(new Uint16Array([1,2])));
+  unitTest("assert.isEmpty(); 17", true, () => assert.isEmpty("foo"));
+  // @ts-ignore
+  unitTest("assert.isEmpty(); 18", true, () => assert.isEmpty(new Map([[1, 2]])));
+  unitTest("assert.isEmpty(); 19", true, () => assert.isEmpty(new Set([1,2])));
+  unitTest("assert.isEmpty(); 20", true, () => assert.isEmpty(new ArrayBuffer(2)));
+  unitTest("assert.isEmpty(); 21", true, () => assert.isEmpty(new DataView(new ArrayBuffer(2))));
+  unitTest("assert.isEmpty(); 22", true, () => assert.isEmpty([1,2].values()));
+  unitTest("assert.isEmpty(); 23", true, () => assert.isEmpty({"a": 1}));
+
+  unitTest("assert.isNotEmpty(); 01", true, () => assert.isNotEmpty(null));
+  unitTest("assert.isNotEmpty(); 02", true, () => assert.isNotEmpty(undefined));
+  unitTest("assert.isNotEmpty(); 03", true, () => assert.isNotEmpty(NaN));
+  unitTest("assert.isNotEmpty(); 04", true, () => assert.isNotEmpty([]));
+  unitTest("assert.isNotEmpty(); 05", true, () => assert.isNotEmpty(new Uint16Array()));
+  unitTest("assert.isNotEmpty(); 06", true, () => assert.isNotEmpty(""));
+  unitTest("assert.isNotEmpty(); 07", true, () => assert.isNotEmpty(new Map()));
+  unitTest("assert.isNotEmpty(); 08", true, () => assert.isNotEmpty(new Set()));
+  unitTest("assert.isNotEmpty(); 09", true, () => assert.isNotEmpty(new ArrayBuffer()));
+  unitTest("assert.isNotEmpty(); 10", true, () => assert.isNotEmpty(new DataView(new ArrayBuffer())));
+  unitTest("assert.isNotEmpty(); 11", true, () => assert.isNotEmpty([].values()));
+  unitTest("assert.isNotEmpty(); 12", true, () => assert.isNotEmpty({}));
+
+  unitTest("assert.isNotEmpty(); 14", false, () => assert.isNotEmpty(42));
+  unitTest("assert.isNotEmpty(); 15", false, () => assert.isNotEmpty([42]));
+  unitTest("assert.isNotEmpty(); 16", false, () => assert.isNotEmpty(new Uint16Array([1,2])));
+  unitTest("assert.isNotEmpty(); 17", false, () => assert.isNotEmpty("foo"));
+  // @ts-ignore
+  unitTest("assert.isNotEmpty(); 18", false, () => assert.isNotEmpty(new Map([[1, 2]])));
+  unitTest("assert.isNotEmpty(); 19", false, () => assert.isNotEmpty(new Set([1,2])));
+  unitTest("assert.isNotEmpty(); 20", false, () => assert.isNotEmpty(new ArrayBuffer(2)));
+  unitTest("assert.isNotEmpty(); 21", false, () => assert.isNotEmpty(new DataView(new ArrayBuffer(2))));
+  unitTest("assert.isNotEmpty(); 22", false, () => assert.isNotEmpty([1,2].values()));
+  unitTest("assert.isNotEmpty(); 23", false, () => assert.isNotEmpty({"a": 1}));
 
   console.log("\nEnd of the sync test.\n");
 }

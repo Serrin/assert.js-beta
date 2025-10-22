@@ -21,6 +21,8 @@ type IncludesOptions = {
     value?: any;
 };
 type Nullish = null | undefined;
+type Primitive = null | undefined | number | bigint | boolean | string | symbol;
+type NonPrimitive = object | Function;
 declare class AssertionError extends Error {
     expected: any;
     actual: any;
@@ -71,6 +73,10 @@ declare namespace assert {
     var isNotFunction: (value: unknown, message?: any) => void;
     var isObject: (value: unknown, message?: any) => asserts value is object;
     var isNotObject: (value: unknown, message?: any) => void;
+    var isPrimitive: (value: unknown, message?: any) => asserts value is Primitive;
+    var isNotPrimitive: (value: unknown, message?: any) => asserts value is NonPrimitive;
+    var isEmpty: (value: unknown, message?: any) => void;
+    var isNotEmpty: (value: unknown, message?: any) => void;
     var match: (string: StringLike, regexp: RegExp, message?: any) => void;
     var doesNotMatch: (string: StringLike, regexp: RegExp, message?: any) => void;
     var lt: (value1: any, value2: any, message?: any) => void;

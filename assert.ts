@@ -10,14 +10,14 @@
 
 /**
  * @name assert.js
- * @version 1.0.0
+ * @version 1.0.1
  * @author Ferenc Czigler
  * @see https://github.com/Serrin/assert.js/
  * @license MIT https://opensource.org/licenses/MIT
  */
 
 
-const VERSION = "assert.js v1.0.0";
+const VERSION = "assert.js v1.0.1";
 
 
 /*
@@ -107,13 +107,34 @@ type ExpectedType = string | Function | Array<string | Function>;
  */
 type IncludesOptions = {keyOrValue: any, value?: any};
 
-
 /**
  * null or undefined
  *
  * @internal
  */
 type Nullish = null | undefined;
+
+/**
+ * @description Not null or undefined or object or function.
+ *
+ * @internal
+ */
+// @ts-ignore
+type NonNullablePrimitive = number | boolean | string | symbol;
+
+/**
+ * @description Not object or function.
+ *
+ * @internal
+ */
+type Primitive = null | undefined | number | bigint | boolean | string | symbol;
+
+/**
+ * @description NObject or function.
+ *
+ * @internal
+ */
+type NonPrimitive = object | Function;
 
 
 /** polyfills **/
@@ -144,7 +165,7 @@ if (!("isError" in Error)) {
 }
 
 
-/* helper functions */
+/* internal functions */
 
 
 /**
@@ -629,6 +650,99 @@ function _includes(container: unknown, keyOrValue: any, value?: any): boolean {
   if (!Object.hasOwn(container, keyOrValue)) { return false; }
   return value === undefined || Object.is((container as any)[keyOrValue], value);
 }
+
+
+/**
+ * Checks if a value is empty.
+ *
+ * - `null`, `undefined`, and `NaN` are empty.
+ * - Arrays, TypedArrays, and strings are empty if length === 0.
+ * - Maps and Sets are empty if size === 0.
+ * - ArrayBuffer and DataView are empty if byteLength === 0.
+ * - Iterable objects are empty if they have no elements.
+ * - Plain objects are empty if they have no own properties.
+ *
+ * @param {any} value The value to check.
+ * @returns boolean
+ */
+function _isEmpty (value: any): boolean {
+  const _isObject = (value: unknown): value is object =>
+    value != null && (typeof value === "object" || typeof value === "function");
+  /**
+   * Checks if a value is a TypedArray (Int8Array, etc.).
+   *
+   * @param {any} value The value to check.
+   * @returns boolean
+   */
+  function _isTypedArray (value: any): boolean {
+    const constructors = [
+      Int8Array, Uint8Array, Uint8ClampedArray,
+      Int16Array, Uint16Array,
+      Int32Array, Uint32Array,
+      Float32Array, Float64Array,
+      BigInt64Array, BigUint64Array];
+    if ("Float16Array" in globalThis) {
+      constructors.push((globalThis as any).Float16Array);
+    }
+    return constructors.some((item): boolean => value instanceof item);
+  }
+  /* Check undefined, null, NaN */
+  if (value == null || Number.isNaN(value)) { return true; }
+  /* Check Array, TypedArrays, string, String */
+  if (Array.isArray(value)
+    || _isTypedArray(value)
+    || typeof value === "string"
+    || value instanceof String) {
+    return value.length === 0;
+  }
+  /* Check Map and Set */
+  if (value instanceof Map || value instanceof Set) { return value.size === 0; }
+  /* Check ArrayBuffer and DataView */
+  if (value instanceof ArrayBuffer || value instanceof DataView) {
+    return value.byteLength === 0;
+  }
+  /* Check Iterable objects */
+  if (typeof value[Symbol.iterator] === "function") {
+    const it = value[Symbol.iterator]();
+    return it.next().done; // avoids consuming entire iterator
+  }
+  /* Check Iterator objects */
+  if ("Iterator" in globalThis ? (value instanceof Iterator)
+    : (value != null && typeof value === "object"
+      && typeof value.next === "function")) {
+    try {
+      /* Has at least one element */
+      for (const _ of value) { return false; }
+      return true;
+    } catch { /* Not iterable */ }
+  }
+  /* Other objects - check own properties (including symbols) */
+  if (_isObject(value)) {
+    const keys: any[] = [
+      ...Object.getOwnPropertyNames(value),
+      ...Object.getOwnPropertySymbols(value)
+    ];
+    if (keys.length === 0) return true;
+    /* Special case: object with single "length" property that is 0 */
+    if (keys.length === 1
+      && keys[0] === "length"
+      && (value as { length?: unknown }).length === 0) {
+      return true;
+    }
+  }
+  /* Return default false */
+  return false;
+}
+
+
+/**
+ * @description Checks if the given value is Primitive.
+ *
+ * @param {unknown} value - The value to check.
+ * @returns True if the value is Primitive, false otherwise.
+ */
+const _isPrimitive = (value: unknown): value is Primitive =>
+  value == null || (typeof value !== "object" && typeof value !== "function");
 
 
 /* exported functions */
@@ -1610,6 +1724,116 @@ function isNotObject (value: unknown, message?: any): void {
 
 
 /**
+ * @description Ensures value is not `object` or `function`.
+ *
+ * @param {any} value The value to check.
+ * @param {any} [message] - Optional message or Error to throw.
+ * @returns {void}
+ * @throws {assert.AssertionError} If assertion is failed.
+ */
+function isPrimitive (value: unknown, message?: any): asserts value is Primitive {
+  if (!_isPrimitive(value)) {
+    if (message instanceof Error) { throw message; }
+    let errorMessage =
+      `[isPrimitive] Assertion failed: ${_toSafeString(value)} should be not object or function${message ? " - " + _toSafeString(message) : ""}`;
+    throw new assert.AssertionError(errorMessage, {
+      message: errorMessage,
+      cause: errorMessage,
+      actual: value,
+      expected: "",
+      operator: "isPrimitive"
+    });
+  }
+}
+
+
+/**
+ * @description Ensures value is `object` or `function`.
+ *
+ * @param {any} value The value to check.
+ * @param {any} [message] - Optional message or Error to throw.
+ * @returns {void}
+ * @throws {assert.AssertionError} If assertion is failed.
+ */
+function isNotPrimitive (value: unknown, message?: any): asserts value is NonPrimitive {
+  if (_isPrimitive(value)) {
+    if (message instanceof Error) { throw message; }
+    let errorMessage =
+      `[isNotPrimitive] Assertion failed: ${_toSafeString(value)} should be object or function${message ? " - " + _toSafeString(message) : ""}`;
+    throw new assert.AssertionError(errorMessage, {
+      message: errorMessage,
+      cause: errorMessage,
+      actual: value,
+      expected: "",
+      operator: "isNotPrimitive"
+    });
+  }
+}
+
+
+/**
+ * @description Ensures value is empty.
+ * 
+ * - `null`, `undefined`, and `NaN` are empty.
+ * - Arrays, TypedArrays, and strings are empty if length === 0.
+ * - Maps and Sets are empty if size === 0.
+ * - ArrayBuffer and DataView are empty if byteLength === 0.
+ * - Iterable objects are empty if they have no elements.
+ * - Plain objects are empty if they have no own properties.
+ *
+ * @param {any} value The value to check.
+ * @param {any} [message] - Optional message or Error to throw.
+ * @returns {void}
+ * @throws {assert.AssertionError} If assertion is failed.
+ */
+function isEmpty (value: unknown, message?: any): void {
+  if (!_isEmpty(value)) {
+    if (message instanceof Error) { throw message; }
+    let errorMessage =
+      `[isEmpty] Assertion failed: ${_toSafeString(value)} should be empty${message ? " - " + _toSafeString(message) : ""}`;
+    throw new assert.AssertionError(errorMessage, {
+      message: errorMessage,
+      cause: errorMessage,
+      actual: value,
+      expected: "",
+      operator: "isEmpty"
+    });
+  }
+}
+
+
+/**
+ * @description Ensures value is not empty.
+ *
+ * - `null`, `undefined`, and `NaN` are empty.
+ * - Arrays, TypedArrays, and strings are empty if length === 0.
+ * - Maps and Sets are empty if size === 0.
+ * - ArrayBuffer and DataView are empty if byteLength === 0.
+ * - Iterable objects are empty if they have no elements.
+ * - Plain objects are empty if they have no own properties.
+ * 
+ * @param {any} value The value to check.
+ * @param {any} [message] - Optional message or Error to throw.
+ * @returns {void}
+ * @throws {assert.AssertionError} If assertion is failed.
+ */
+function isNotEmpty (value: unknown, message?: any): void {
+  if (_isEmpty(value)) {
+    if (message instanceof Error) { throw message; }
+    let errorMessage =
+      `[isNotEmpty] Assertion failed: ${_toSafeString(value)} should be not empty${message ? " - " + _toSafeString(message) : ""}`;
+    throw new assert.AssertionError(errorMessage, {
+      message: errorMessage,
+      cause: errorMessage,
+      actual: value,
+      expected: "",
+      operator: "isNotEmpty"
+    });
+  }
+}
+
+
+/**
  * @description Ensures a string matches a regular expression.
  *
  * @param {string} string
@@ -2030,6 +2254,10 @@ assert["isFunction"] = isFunction;
 assert["isNotFunction"] = isNotFunction;
 assert["isObject"] = isObject;
 assert["isNotObject"] = isNotObject;
+assert["isPrimitive"] = isPrimitive;
+assert["isNotPrimitive"] = isNotPrimitive;
+assert["isEmpty"] = isEmpty;
+assert["isNotEmpty"] = isNotEmpty;
 assert["match"] = match;
 assert["doesNotMatch"] = doesNotMatch;
 assert["lt"] = lt;
