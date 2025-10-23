@@ -1,6 +1,6 @@
 # assert.js
 
-Latest version: 1.0.1
+Latest version: 1.0.2
 
 Date: 2025-10-22T17:36:34.617Z
 
@@ -22,7 +22,7 @@ Boolean | `assert.isTrue();`, `assert.isFalse();`
 String | `assert.match();`, `assert.doesNotMatch();`, `assert.stringContains();`, `assert.stringNotContains();`
 Comparison | `assert.lt();`, `assert.lte();`, `assert.gt();`, `assert.gte();`
 Objects | `assert.includes();`, `assert.doesNotInclude();`, `assert.isEmpty();`, `assert.isNotEmpty();`
-Type | `assert.is();`, `assert.isNot();`, `assert.isPrimitive();`, `assert.isNotPrimitive();`, `assert.isNullish();`, `assert.isNotNullish();`, `assert.isNull();`, `assert.isNotNull();`, `assert.isUndefined();`, `assert.isNotUndefined();`, `assert.isString();`, `assert.isNotString();`, `assert.isNumber();`, `assert.isNotNumber();`, `assert.isBigInt();`, `assert.isNotBigInt();`, `assert.isBoolean();`, `assert.isNotBoolean();`, `assert.isSymbol();`, `assert.isNotSymbol();`, `assert.isFunction();`, `assert.isNotFunction();`, `assert.isObject();`, `assert.isNotObject();`
+Type | `assert.is();`, `assert.isNot();`, `assert.isPrimitive();`, `assert.isNotPrimitive();`, `assert.isNullish();`, `assert.isNotNullish();`, `assert.isNull();`, `assert.isNotNull();`, `assert.isUndefined();`, `assert.isNotUndefined();`, `assert.isString();`, `assert.isNotString();`, `assert.isNumber();`, `assert.isNotNumber();`, `assert.isBigInt();`, `assert.isNotBigInt();`, `assert.isBoolean();`, `assert.isNotBoolean();`, `assert.isSymbol();`, `assert.isNotSymbol();`, `assert.isFunction();`, `assert.isNotFunction();`, `assert.isObject();`, `assert.isNotObject();`, `assert.isNaN();`, `assert.isNotNaN();`
 Testrunner | `assert.testSync();`, `await assert.testAsync();`, `assert.testCheck();`
 
 ---
@@ -79,7 +79,7 @@ Added in v1.0.0
 Returns the library version string.
 
 ````js
-console.log(assert.VERSION); // "assert.js v1.0.1"
+console.log(assert.VERSION); // "assert.js v1.0.2"
 ````
 
 ---
@@ -741,6 +741,30 @@ Ensures value is _not_ `object` or value is `null`.
 ````js
 assert.isNotObject(null); // passes
 // assert.isNotObject({a: 1}); // throws an error
+````
+
+### `assert.isNaN(value, [message: string | Error]);`
+
+Added in v1.0.2
+
+Ensures value is `number` and `NaN`.
+
+````js
+assert.isNaN(0 / 0); // passes
+// assert.isNaN(42); // throws an error
+// assert.isNaN("foo"); // throws an error
+````
+
+### `assert.isNotNaN(value, [message: string | Error]);`
+
+Added in v1.0.2
+
+Ensures value is _not_ `number` and _not_ `NaN`.
+
+````js
+assert.isNotObject(42); // passes
+assert.isNotObject("foo"); // passes
+// assert.isNotObject(0 /0); // throws an error
 ````
 
 ---
