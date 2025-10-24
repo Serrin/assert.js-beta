@@ -20,7 +20,7 @@ if (!("isError" in Error)) {
 }
 const _typeOf = (value) => value === null ? "null" : typeof value;
 function _classOf(value) {
-    const valueType = value === null ? "null" : typeof value;
+    const valueType = _typeOf(value);
     if (valueType !== "object" && valueType !== "function") {
         return valueType;
     }
@@ -34,10 +34,7 @@ function _classOf(value) {
     return ctor === "Object" || ctor === "Function" ? ctor.toLowerCase() : ctor;
 }
 function _isDeepStrictEqual(value1, value2) {
-    const _deepType = (value) => (value === null) ? "null" : (value !== value) ? "NaN" : (typeof value);
-    const _isPrimitive = (value) => value == null
-        || (typeof value !== "object" && typeof value !== "function");
-    const _isObject = (value) => value != null && typeof value === "object";
+    const _isObject = (value) => _typeOf(value) === "object";
     const _isSameInstance = (value1, value2, Class) => value1 instanceof Class && value2 instanceof Class;
     const _classof = (value) => Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
     const _ownKeys = (value) => [...Object.getOwnPropertyNames(value), ...Object.getOwnPropertySymbols(value)];
@@ -51,7 +48,7 @@ function _isDeepStrictEqual(value1, value2) {
     if (_isPrimitive(value1) && _isObject(value2) && typeof value1 === _classof(value2)) {
         return _isEqual(value1, value2.valueOf());
     }
-    if (_deepType(value1) !== _deepType(value2)) {
+    if (_typeOf(value1) !== _typeOf(value2)) {
         return false;
     }
     if (_isObject(value1) && _isObject(value2)) {
@@ -184,7 +181,7 @@ function _isType(value, expectedType, Throw = false) {
     if (typeof Throw !== "boolean") {
         throw new TypeError(`[isType] TypeError: Throw has to be a boolean. Got ${typeof Throw}`);
     }
-    const vType = (value === null ? "null" : typeof value);
+    const vType = _typeOf(value);
     if (expectedType == null) {
         return vType === "object"
             ? Object.getPrototypeOf(value)?.constructor ?? "object"
@@ -192,17 +189,17 @@ function _isType(value, expectedType, Throw = false) {
     }
     let expectedArray = Array.isArray(expectedType) ? expectedType : [expectedType];
     let matched = expectedArray.some(function (item) {
-        if (typeof item === "string") {
+        if (_isString(item)) {
             return vType === item;
         }
-        if (typeof item === "function") {
+        if (_isFunction(item)) {
             return value != null && value instanceof item;
         }
         throw new TypeError(`[isType] TypeError: expectedType array elements have to be a string or function. Got ${typeof item}`);
     });
     if (Throw && !matched) {
         let vName = value.toString ? value.toString() : Object.prototype.toString.call(value);
-        let eNames = expectedArray.map((item) => (typeof item === "string" ? item.toString() : item.name ?? "anonymous")).join(", ");
+        let eNames = expectedArray.map((item) => (_isString(item) ? item.toString() : item.name ?? "anonymous")).join(", ");
         throw new TypeError(`[isType] TypeError: ${vName} is not a ${eNames}`);
     }
     return matched;
@@ -217,22 +214,23 @@ const _isBoolean = (value) => typeof value === "boolean";
 const _isSymbol = (value) => typeof value === "symbol";
 const _isFunction = (value) => typeof value === "function";
 const _isObject = (value) => value != null && typeof value === "object";
+const _isError = (value) => Error.isError ? Error.isError(value) : value instanceof Error;
 function _toSafeString(value) {
     const seen = new WeakSet();
     const replacer = (_key, value) => {
-        if (typeof value === "function") {
+        if (_isFunction(value)) {
             return `[Function: ${value.name || "anonymous"}]`;
         }
-        if (typeof value === "symbol") {
+        if (_isSymbol(value)) {
             return value.toString();
         }
         if (value instanceof Date) {
             return `Date(${value.toISOString()})`;
         }
-        if (value instanceof Error) {
+        if (_isError(value)) {
             return `${value.name}: ${value.message}, ${value.stack ?? ""}`;
         }
-        if (value && typeof value === "object") {
+        if (value && _isObject(value)) {
             if (seen.has(value)) {
                 return "[Circular]";
             }
@@ -242,7 +240,7 @@ function _toSafeString(value) {
         return value;
     };
     if (["undefined", "null", "string", "number", "boolean", "bigint"]
-        .includes(value === null ? "null" : typeof value)) {
+        .includes(_typeOf(value))) {
         return String(value);
     }
     if (Array.isArray(value)) {
@@ -278,7 +276,7 @@ function _includes(container, keyOrValue, value) {
     if (container instanceof WeakSet) {
         return container.has(keyOrValue);
     }
-    if (typeof container.next === "function") {
+    if (typeof (container).next === "function") {
         let it = container;
         let res = it.next();
         while (!res.done) {
@@ -292,7 +290,7 @@ function _includes(container, keyOrValue, value) {
     if (Array.isArray(container)
         || ArrayBuffer.isView(container)
         || container instanceof Set
-        || typeof container[Symbol.iterator] === "function") {
+        || typeof (container)[Symbol.iterator] === "function") {
         for (const item of container) {
             if (Object.is(item, keyOrValue)) {
                 return true;
@@ -306,7 +304,6 @@ function _includes(container, keyOrValue, value) {
     return value === undefined || Object.is(container[keyOrValue], value);
 }
 function _isEmpty(value) {
-    const _isObject = (value) => value != null && (typeof value === "object" || typeof value === "function");
     function _isTypedArray(value) {
         const constructors = [
             Int8Array, Uint8Array, Uint8ClampedArray,
@@ -325,7 +322,7 @@ function _isEmpty(value) {
     }
     if (Array.isArray(value)
         || _isTypedArray(value)
-        || typeof value === "string"
+        || _isString(value)
         || value instanceof String) {
         return value.length === 0;
     }
@@ -340,8 +337,7 @@ function _isEmpty(value) {
         return it.next().done;
     }
     if ("Iterator" in globalThis ? (value instanceof Iterator)
-        : (value != null && typeof value === "object"
-            && typeof value.next === "function")) {
+        : (_typeOf(value) === "object" && typeof value.next === "function")) {
         try {
             for (const _ of value) {
                 return false;
@@ -365,28 +361,30 @@ function _isEmpty(value) {
     }
     return false;
 }
-const _isPrimitive = (value) => value == null || (typeof value !== "object" && typeof value !== "function");
+const _isPrimitive = (value) => _typeOf(value) !== "object" && _typeOf(value) !== "function";
 function _errorCheck(value) {
-    if (value instanceof Error) {
+    if (_isError(value)) {
         throw value;
     }
 }
-function _isNaN(value) {
-    return typeof value === "number" && value !== value;
-}
 class AssertionError extends Error {
-    expected;
     actual;
+    expected;
     operator;
     code;
     constructor(message, options) {
-        super(message, options);
+        super(message);
         this.code = "ERR_ASSERTION";
-        if (options != null) {
-            this.message = message ?? undefined;
-            this.actual = options?.actual ?? undefined;
-            this.expected = options?.expected ?? undefined;
-            this.operator = options?.operator ?? undefined;
+        this.name = "AssertionError";
+        this.message = message ?? undefined;
+        this.cause = message ?? undefined;
+        if (options != null && typeof options === "object") {
+            this.actual = options?.actual;
+            this.expected = options?.expected;
+            this.operator = options?.operator;
+        }
+        if (typeof Error.captureStackTrace === "function") {
+            Error.captureStackTrace(this, AssertionError);
         }
     }
 }
@@ -501,7 +499,7 @@ function throws(block, Error_opt, message) {
         });
     }
     if (Error_opt) {
-        const errorMatches = (typeof Error_opt === "function" && thrownError instanceof Error_opt) ||
+        const errorMatches = (_isFunction(Error_opt) && thrownError instanceof Error_opt) ||
             (typeof Error_opt === "string" && thrownError?.message?.includes(Error_opt)) ||
             (Error_opt instanceof RegExp && Error_opt.test(thrownError?.message));
         if (!errorMatches) {
@@ -533,8 +531,9 @@ async function rejects(block, Error_opt, message) {
         rejectedError = catchedError;
     }
     if (Error_opt) {
-        const errorMatches = (typeof Error_opt === "function" && rejectedError instanceof Error_opt) ||
-            (typeof Error_opt === "string" && typeof rejectedError?.message === "string" && rejectedError.message.includes(Error_opt)) ||
+        const errorMatches = (_isFunction(Error_opt) && rejectedError instanceof Error_opt) ||
+            (_isString(Error_opt) && _isString(rejectedError?.message)
+                && rejectedError.message.includes(Error_opt)) ||
             (Error_opt instanceof RegExp && typeof rejectedError?.message === "string" && Error_opt.test(rejectedError.message));
         if (!errorMatches) {
             let errorMessage = `[rejects] Assertion failed: rejected with unexpected error: ${_toSafeString(rejectedError)}${message ? " - " + _toSafeString(message) : ""}`;
@@ -551,16 +550,16 @@ async function rejects(block, Error_opt, message) {
 }
 async function doesNotReject(block, Error_opt, message) {
     try {
-        const result = typeof block === "function" ? await block() : await block;
+        const result = _isFunction(block) ? await block() : await block;
         return result;
     }
     catch (catchedError) {
         if (Error_opt) {
-            const errorMatches = (typeof Error_opt === "function" && catchedError instanceof Error_opt) ||
-                (typeof Error_opt === "string" && catchedError.message?.includes(Error_opt)) ||
+            const errorMatches = (_isFunction(Error_opt) && catchedError instanceof Error_opt) ||
+                (_isString(Error_opt) && catchedError.message?.includes(Error_opt)) ||
                 (Error_opt instanceof RegExp && Error_opt.test(catchedError.message));
             if (errorMatches) {
-                if (message instanceof Error)
+                if (_isError(message))
                     throw message;
                 let errorMessage = `[doesNotReject] Assertion failed: function/promise rejected with disallowed error: ${_toSafeString(catchedError)}${message ? " - " + _toSafeString(message) : ""}`;
                 throw new assert.AssertionError(errorMessage, {
@@ -572,8 +571,7 @@ async function doesNotReject(block, Error_opt, message) {
                 });
             }
         }
-        if (message instanceof Error)
-            throw message;
+        _errorCheck(message);
         let errorMessage = `[doesNotReject] Assertion failed: function/promise rejected unexpectedly${message ? " - " + _toSafeString(message) : ""}`;
         throw new assert.AssertionError(errorMessage, {
             message: errorMessage,
@@ -941,7 +939,7 @@ function isNotPrimitive(value, message) {
     }
 }
 function isNaN(value, message) {
-    if (!_isNaN(value)) {
+    if (typeof value !== "number" || !Number.isNaN(value)) {
         _errorCheck(message);
         let errorMessage = `[isNaN] Assertion failed: ${_toSafeString(value)} should be NaN${message ? " - " + _toSafeString(message) : ""}`;
         throw new assert.AssertionError(errorMessage, {
@@ -954,7 +952,7 @@ function isNaN(value, message) {
     }
 }
 function isNotNaN(value, message) {
-    if (_isNaN(value)) {
+    if (typeof value === "number" && Number.isNaN(value)) {
         _errorCheck(message);
         let errorMessage = `[isNotNaN] Assertion failed: ${_toSafeString(value)} should be NaN${message ? " - " + _toSafeString(message) : ""}`;
         throw new assert.AssertionError(errorMessage, {
@@ -1060,7 +1058,7 @@ function lte(value1, value2, message) {
             cause: errorMessage,
             actual: value1,
             expected: value2,
-            operator: "< or Object.is();"
+            operator: "< || Object.is();"
         });
     }
 }
@@ -1086,7 +1084,7 @@ function gte(value1, value2, message) {
             cause: errorMessage,
             actual: value1,
             expected: value2,
-            operator: "> or Object.is();"
+            operator: "> || Object.is();"
         });
     }
 }
@@ -1175,7 +1173,7 @@ function testSync(block) {
     catch (error) {
         return {
             ok: false,
-            error: error instanceof Error ? error : new Error(String(error)),
+            error: _isError(error) ? error : new Error(String(error)),
         };
     }
 }
@@ -1186,7 +1184,7 @@ async function testAsync(block) {
     catch (error) {
         return {
             ok: false,
-            error: error instanceof Error ? error : new Error(String(error)),
+            error: _isError(error) ? error : new Error(String(error)),
         };
     }
 }
