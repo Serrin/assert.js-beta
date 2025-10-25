@@ -1,8 +1,8 @@
 # assert.js
 
-Latest version: 1.0.2
+Latest version: 1.0.3
 
-Date: 2025-09-03T08:30:47.486Z
+Date: 2025-10-25T15:59:06.551Z
 
 A modern, zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.
 Implements and extends the [CommonJS Unit Testing 1.0 spec](https://wiki.commonjs.org/wiki/Unit_Testing/1.0).
@@ -79,7 +79,7 @@ Added in v1.0.0
 Returns the library version string.
 
 ````js
-console.log(assert.VERSION); // "assert.js v1.0.2"
+console.log(assert.VERSION); // "assert.js v1.0.3"
 ````
 
 ---

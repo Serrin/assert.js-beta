@@ -10,14 +10,14 @@
 
 /**
  * @name assert.js
- * @version 1.0.2
+ * @version 1.0.3
  * @author Ferenc Czigler
  * @see https://github.com/Serrin/assert.js/
  * @license MIT https://opensource.org/licenses/MIT
  */
 
 
-const VERSION = "assert.js v1.0.2";
+const VERSION = "assert.js v1.0.3";
 
 
 /*
@@ -126,7 +126,7 @@ type NonNullablePrimitive = number | bigint | boolean | string | symbol;
  *
  * @internal
  */
-type Primitive = NonNullablePrimitive | null | undefined;
+type Primitive = Nullish | NonNullablePrimitive;
 
 /**
  * @description Object or function.
@@ -134,6 +134,77 @@ type Primitive = NonNullablePrimitive | null | undefined;
  * @internal
  */
 type NonPrimitive = object | Function;
+
+/**
+ * @description All basic types.
+ *
+ * @internal
+ */
+type AllType = Primitive | NonPrimitive;
+
+/**
+ * @description Every types except the `undefined`.
+ *
+ * @internal
+ */
+type NonUndefined = Exclude<AllType, undefined>;
+
+/**
+ * @description Every types except the `null`.
+ *
+ * @internal
+ */
+type NonNull = Exclude<AllType, null>;
+
+/**
+ * @description Every types except the `number`.
+ *
+ * @internal
+ */
+type NonNumber = Exclude<AllType, number>;
+
+/**
+ * @description Every types except the `bigint`.
+ *
+ * @internal
+ */
+type NonBigInt = Exclude<AllType, bigint>;
+
+/**
+ * @description Every types except the `boolean`.
+ *
+ * @internal
+ */
+type NonBoolean = Exclude<AllType, boolean>;
+
+/**
+ * @description Every types except the `string`.
+ *
+ * @internal
+ */
+type NonString = Exclude<AllType, string>;
+
+/**
+ * @description Every types except the `symbol`.
+ *
+ * @internal
+ */
+type NonSymbol = Exclude<AllType, symbol>;
+
+/**
+ * @description Every types except the `object`.
+ * Function is a subtype of object, excluding object would also remove Function.
+ *
+ * @internal
+ */
+type NonObject = (Exclude<AllType, object>) | Function;
+
+/**
+ * @description Every types except the `function`.
+ *
+ * @internal
+ */
+type NonFunction = Exclude<AllType, Function>;
 
 
 /** polyfills **/
@@ -768,7 +839,7 @@ const _isPrimitive = (value: unknown): value is Primitive =>
  * @description If value is an error, then it will be thrown.
  *
  * @param {unknown} value - The value to check.
- * @returns void
+ * @returns {void}
  * @internal
  */
 function _errorCheck (value: unknown): void {
@@ -1356,7 +1427,7 @@ function isNull (value: unknown, message?: unknown): asserts value is null {
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotNull (value: unknown, message?: unknown): asserts value is NonNullable<unknown> {
+function isNotNull (value: unknown, message?: unknown): asserts value is NonNull {
   if (_isNull(value)) {
     _errorCheck(message);
     let errorMessage =
@@ -1404,7 +1475,7 @@ function isUndefined (value: unknown, message?: unknown): asserts value is undef
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotUndefined (value: unknown, message?: unknown): void {
+function isNotUndefined (value: unknown, message?: unknown): asserts value is NonUndefined {
   if (_isUndefined(value)) {
     _errorCheck(message);
     let errorMessage =
@@ -1418,6 +1489,7 @@ function isNotUndefined (value: unknown, message?: unknown): void {
     });
   }
 }
+
 
 /**
  * @description Ensures value is `string`.
@@ -1451,7 +1523,7 @@ function isString (value: unknown, message?: unknown): asserts value is string {
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotString (value: unknown, message?: unknown): void {
+function isNotString (value: unknown, message?: unknown): asserts value is NonString {
   if (_isString(value)) {
     _errorCheck(message);
     let errorMessage =
@@ -1499,7 +1571,7 @@ function isNumber (value: unknown, message?: unknown): asserts value is number {
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotNumber (value: unknown, message?: unknown): void {
+function isNotNumber (value: unknown, message?: unknown): asserts value is NonNumber {
   if (_isNumber(value)) {
     _errorCheck(message);
     let errorMessage =
@@ -1547,7 +1619,7 @@ function isBigInt (value: unknown, message?: unknown): asserts value is bigint {
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotBigInt (value: unknown, message?: unknown): void {
+function isNotBigInt (value: unknown, message?: unknown): asserts value is NonBigInt {
   if (_isBigInt(value)) {
     _errorCheck(message);
     let errorMessage =
@@ -1595,7 +1667,7 @@ function isBoolean (value: unknown, message?: unknown): asserts value is boolean
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotBoolean (value: unknown, message?: unknown): void {
+function isNotBoolean (value: unknown, message?: unknown): asserts value is NonBoolean {
   if (_isBoolean(value)) {
     _errorCheck(message);
     let errorMessage =
@@ -1643,7 +1715,7 @@ function isSymbol (value: unknown, message?: unknown): asserts value is symbol {
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotSymbol (value: unknown, message?: unknown): void {
+function isNotSymbol (value: unknown, message?: unknown): asserts value is NonSymbol {
   if (_isSymbol(value)) {
     _errorCheck(message);
     let errorMessage =
@@ -1691,7 +1763,7 @@ function isFunction (value: unknown, message?: unknown): asserts value is Functi
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotFunction (value: unknown, message?: unknown): void {
+function isNotFunction (value: unknown, message?: unknown): asserts value is NonFunction {
   if (_isFunction(value)) {
     _errorCheck(message);
     let errorMessage =
@@ -1739,7 +1811,7 @@ function isObject (value: unknown, message?: unknown): asserts value is object {
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotObject (value: unknown, message?: unknown): void {
+function isNotObject (value: unknown, message?: unknown): asserts value is NonObject {
   if (_isObject(value)) {
     _errorCheck(message);
     let errorMessage =
@@ -2099,6 +2171,7 @@ function gte (value1: any, value2: any, message?: unknown): void {
  * @param {string} actual - The string to check.
  * @param {string} substring - The substring expected to appear within `actual`.
  * @param {unknown} [message] - Optional message or Error to throw.
+ * @returns {void}
  * @throws {assert.AssertionError} If `actual` does not contain `substring`.
  */
 function stringContains(actual: StringLike, substring: StringLike, message?: unknown): void {
@@ -2137,6 +2210,7 @@ function stringContains(actual: StringLike, substring: StringLike, message?: unk
  * @param {string} actual - The string to check.
  * @param {string} substring - The substring that must not appear in `actual`.
  * @param {unknown} [message] - Optional message or Error to throw.
+ * @returns {void}
  * @throws {assert.AssertionError} If `actual` contains `substring`.
  */
 function stringNotContains(actual: StringLike, substring: StringLike, message?: unknown): void {
