@@ -671,11 +671,30 @@ function _toSafeString (value: unknown): string {
  *
  * @param {Comparable} value1 The value1 to check.
  * @param {Comparable} value2 The value2 to check.
- * @returns {boolean} value1 is less than value2
+ * @returns {boolean} value1 is less than value2.
  * @internal
  */
 const _isLessThan = (value1: Comparable, value2: Comparable): boolean =>
   _typeOf(value1) === _typeOf(value2) && value1 < value2;
+
+
+/**
+ * @description Check value is greater than or equal min and value is less than or equal max.
+ *
+ * @param {Comparable} value The value1 to check.
+ * @param {Comparable} min The value2 to check.
+ * @param {Comparable} max The value2 to check.
+ * @returns {boolean} value is greater than or equal min and value is less than or equal max.
+ * @internal
+ */
+const _inRange = (value: Comparable, min: Comparable, max: Comparable): boolean =>
+  _typeOf(value) === _typeOf(min)
+    && _typeOf(min) === _typeOf(max)
+    && (
+      (min < value && value < max)
+      || Object.is(value, min)
+      || Object.is(value, max)
+    );
 
 
 /**
@@ -2066,7 +2085,7 @@ function doesNotMatch (string: StringLike, regexp: RegExp, message?: unknown): v
 
 
 /**
- * @description Checks `a < b`, but the value types have to be same type.
+ * @description Checks `a < b` and value types have to be same type.
  *
  * @param {any} value1 The value1 to check.
  * @param {any} value2 The value2 to check.
@@ -2091,7 +2110,7 @@ function lt (value1: any, value2: any, message?: unknown): void {
 
 
 /**
- * @description Checks `a >= b`, but the value types have to be same type.
+ * @description Checks `a >= b` and value types have to be same type.
  *
  * @param {any} value1 The value1 to check.
  * @param {any} value2 The value2 to check.
@@ -2116,7 +2135,7 @@ function lte (value1: any, value2: any, message?: any): void {
 
 
 /**
- * @description Checks `a > b`, but the value types have to be same type.
+ * @description Checks `a > b` and value types have to be same type.
  *
  * @param {any} value1 The value1 to check.
  * @param {any} value2 The value2 to check.
@@ -2141,7 +2160,7 @@ function gt (value1: any, value2: any, message?: any): void {
 
 
 /**
- * @description Checks `a <= b`, but the value types have to be same type.
+ * @description Checks `a <= b` and value types have to be same type.
  *
  * @param {any} value1 The value1 to check.
  * @param {any} value2 The value2 to check.
@@ -2160,6 +2179,58 @@ function gte (value1: any, value2: any, message?: unknown): void {
       actual: value1,
       expected: value2,
       operator: "> || Object.is();"
+    });
+  }
+}
+
+
+/**
+ * @description Checks `min <= value <= max` and the value types have to be same type.
+ *
+ * @param {any} value The value to check.
+ * @param {any} min The min value to check.
+ * @param {any} max The max value to check.
+ * @param {unknown} [message] - Optional message or Error to throw.
+ * @returns {void}
+ * @throws {assert.AssertionError} If assertion is failed.
+ */
+function inRange (value: any, min: any, max: any, message?: unknown): void {
+  if (!_inRange(value, min, max)) {
+    _errorCheck(message);
+    let errorMessage =
+      `[inRange] Assertion failed: ${_toSafeString(value)} should be in range ${_toSafeString(min)} and ${max} or the type of the values are not the same${message ? " - " + _toSafeString(message) : ""}`;
+    throw new assert.AssertionError(errorMessage, {
+      message: errorMessage,
+      cause: errorMessage,
+      actual: value,
+      expected: `${_toSafeString(min)} and ${_toSafeString(max)}`,
+      operator: "inRange"
+    });
+  }
+}
+
+
+/**
+ * @description Inverse of `inRange(value, min, max [message: string | Error]);`.
+ *
+ * @param {any} value The value to check.
+ * @param {any} min The min value to check.
+ * @param {any} max The max value to check.
+ * @param {unknown} [message] - Optional message or Error to throw.
+ * @returns {void}
+ * @throws {assert.AssertionError} If assertion is failed.
+ */
+function notInRange (value: any, min: any, max: any, message?: unknown): void {
+  if (_inRange(value, min, max)) {
+    _errorCheck(message);
+    let errorMessage =
+      `[notInRange] Assertion failed: ${_toSafeString(value)} should be not in range ${_toSafeString(min)} and ${max}${message ? " - " + _toSafeString(message) : ""}`;
+    throw new assert.AssertionError(errorMessage, {
+      message: errorMessage,
+      cause: errorMessage,
+      actual: value,
+      expected: `${_toSafeString(min)} and ${_toSafeString(max)}`,
+      operator: "notInRange"
     });
   }
 }
@@ -2420,6 +2491,8 @@ assert["lt"] = lt;
 assert["lte"] = lte;
 assert["gt"] = gt;
 assert["gte"] = gte;
+assert["inRange"] = inRange;
+assert["notInRange"] = notInRange;
 assert["stringContains"] = stringContains;
 assert["stringNotContains"] = stringNotContains;
 assert["includes"] = includes;

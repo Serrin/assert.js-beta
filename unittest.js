@@ -481,6 +481,30 @@ function autoTestSync () {
   unitTest("assert.isNotNaN(); 02", false, () => assert.isNotNaN(42));
   unitTest("assert.isNotNaN(); 02", false, () => assert.isNotNaN(true));
 
+  unitTest("assert.inRange(); 01", false, () => assert.inRange(0, -1, 1));
+  unitTest("assert.inRange(); 02", false, () => assert.inRange(-1, -1, 1));
+  unitTest("assert.inRange(); 03", false, () => assert.inRange(1, -1, 1));
+  unitTest("assert.inRange(); 04", false, () => assert.inRange(1n, -1n, 1n));
+  unitTest("assert.inRange(); 05", false, () => assert.inRange(0n, -1n, 1n));
+  unitTest("assert.inRange(); 06", false, () => assert.inRange(-1n, -1n, 1n));
+  unitTest("assert.inRange(); 07", true, () => assert.inRange(-2, -1, 1));
+  unitTest("assert.inRange(); 08", true, () => assert.inRange(2, -1, 1));
+  unitTest("assert.inRange(); 09", true, () => assert.inRange(1, -1n, 1));
+  unitTest("assert.inRange(); 10a", true, () => assert.inRange(1, -1n, 1n));
+  unitTest("assert.inRange(); 10b", true, () => assert.inRange(1, -1n, 1n, "lorem"));
+
+  unitTest("assert.notInRange(); 01", true, () => assert.notInRange(0, -1, 1));
+  unitTest("assert.notInRange(); 02", true, () => assert.notInRange(-1, -1, 1));
+  unitTest("assert.notInRange(); 03", true, () => assert.notInRange(1, -1, 1));
+  unitTest("assert.notInRange(); 04", true, () => assert.notInRange(1n, -1n, 1n));
+  unitTest("assert.notInRange(); 05", true, () => assert.notInRange(0n, -1n, 1n));
+  unitTest("assert.notInRange(); 06a", true, () => assert.notInRange(-1n, -1n, 1n));
+  unitTest("assert.notInRange(); 06b", true, () => assert.notInRange(-1n, -1n, 1n, "lorem"));
+  unitTest("assert.notInRange(); 07", false, () => assert.notInRange(-2, -1, 1));
+  unitTest("assert.notInRange(); 08", false, () => assert.notInRange(2, -1, 1));
+  unitTest("assert.notInRange(); 09", false, () => assert.notInRange(1, -1n, 1));
+  unitTest("assert.notInRange(); 10", false, () => assert.notInRange(1, -1n, 1n));
+
   alert("End of the sync test.");
 }
 

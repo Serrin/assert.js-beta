@@ -96,6 +96,8 @@ declare namespace assert {
     var lte: (value1: any, value2: any, message?: any) => void;
     var gt: (value1: any, value2: any, message?: any) => void;
     var gte: (value1: any, value2: any, message?: unknown) => void;
+    var inRange: (value: any, min: any, max: any, message?: unknown) => void;
+    var notInRange: (value: any, min: any, max: any, message?: unknown) => void;
     var stringContains: (actual: StringLike, substring: StringLike, message?: unknown) => void;
     var stringNotContains: (actual: StringLike, substring: StringLike, message?: unknown) => void;
     var includes: (container: any, options: IncludesOptions, message?: unknown) => void;

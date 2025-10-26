@@ -17,10 +17,10 @@ Constants | `assert.VERSION;`
 Errors | `assert.AssertionError`
 Basic | `assert();`, `assert.ok();`, `assert.notOk();`, `assert.fail();`
 Equality | `assert.equal();`, `assert.notEqual();`, `assert.strictEqual();`, `assert.notStrictEqual();`, `assert.deepEqual();`, `assert.notDeepEqual();`
-Exceptions | `assert.throws();`, `await assert.rejects();`, `await assert.doesNotReject();`
+Exception | `assert.throws();`, `await assert.rejects();`, `await assert.doesNotReject();`
 Boolean | `assert.isTrue();`, `assert.isFalse();`
 String | `assert.match();`, `assert.doesNotMatch();`, `assert.stringContains();`, `assert.stringNotContains();`
-Comparison | `assert.lt();`, `assert.lte();`, `assert.gt();`, `assert.gte();`
+Comparison | `assert.lt();`, `assert.lte();`, `assert.gt();`, `assert.gte();`, `assert.inRange();`, `assert.notInRange();`
 Objects | `assert.includes();`, `assert.doesNotInclude();`, `assert.isEmpty();`, `assert.isNotEmpty();`
 Type | `assert.is();`, `assert.isNot();`, `assert.isPrimitive();`, `assert.isNotPrimitive();`, `assert.isNullish();`, `assert.isNotNullish();`, `assert.isNull();`, `assert.isNotNull();`, `assert.isUndefined();`, `assert.isNotUndefined();`, `assert.isString();`, `assert.isNotString();`, `assert.isNumber();`, `assert.isNotNumber();`, `assert.isBigInt();`, `assert.isNotBigInt();`, `assert.isBoolean();`, `assert.isNotBoolean();`, `assert.isSymbol();`, `assert.isNotSymbol();`, `assert.isFunction();`, `assert.isNotFunction();`, `assert.isObject();`, `assert.isNotObject();`, `assert.isNaN();`, `assert.isNotNaN();`
 Testrunner | `assert.testSync();`, `await assert.testAsync();`, `assert.testCheck();`
@@ -343,7 +343,7 @@ assert.stringNotContains("hello", "z"); // passes
 
 Added in v1.0.0
 
-Checks `a < b`, but the value types have to be same type.
+Checks `a < b` and value types have to be same type.
 
 ````js
 assert.lt(3, 5); // passes
@@ -354,7 +354,7 @@ assert.lt(3, 5); // passes
 
 Added in v1.0.0
 
-Checks `a <= b`, but the value types have to be same type.
+Checks `a <= b` and value types have to be same type.
 
 ````js
 assert.lte(3, 3); // passes
@@ -366,7 +366,7 @@ assert.lte(2, 4); // passes
 
 Added in v1.0.0
 
-Checks `a > b`, but the value types have to be same type.
+Checks `a > b` and value types have to be same type.
 
 ````js
 assert.gt(5, 3); // passes
@@ -377,7 +377,7 @@ assert.gt(5, 3); // passes
 
 Added in v1.0.0
 
-Checks `a >= b`, but the value types have to be same type.
+Checks `a >= b` and value types have to be same type.
 
 ````js
 assert.gte(3, 3); // passes
@@ -385,9 +385,35 @@ assert.gte(5, 3); // passes
 // assert.gte(2, 3); // throws an error
 ````
 
+### `assert.inRange(value, min, max [message: string | Error]);`
+
+Added in v1.0.3
+
+Checks `min <= value <= max` and the value types have to be same type.
+
+````js
+assert.inRange(1, -5, 3); // passes
+// assert.inRange(0, 1, 3); // throws an error
+// assert.inRange(4, 1, 3); // throws an error
+// assert.inRange(2, 1n, 3); // throws an error
+````
+
+### `assert.notInRange(value, min, max [message: string | Error]);`
+
+Added in v1.0.3
+
+Inverse of `inRange(value, min, max [message: string | Error]);`.
+
+````js
+assert.notInRange(0, 1, 3); // passes
+assert.notInRange(4, 1, 3); // passes
+assert.notInRange(2, 1n, 3); // passes
+// assert.notInRange(1, -5, 3); // throws an error
+````
+
 ---
 
-## Objects Assertions
+## Object Assertions
 
 ### `assert.includes(container, options: {keyOrValue, [value] }, [message: string | Error]);`
 
@@ -759,7 +785,7 @@ assert.isNaN(0 / 0); // passes
 
 Added in v1.0.2
 
-Ensures value is _not_ `number` and _not_ `NaN`.
+Inverse of `assert.isNaN(value, [message: string | Error]);`.
 
 ````js
 assert.isNotObject(42); // passes

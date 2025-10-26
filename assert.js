@@ -260,6 +260,11 @@ function _toSafeString(value) {
     }
 }
 const _isLessThan = (value1, value2) => _typeOf(value1) === _typeOf(value2) && value1 < value2;
+const _inRange = (value, min, max) => _typeOf(value) === _typeOf(min)
+    && _typeOf(min) === _typeOf(max)
+    && ((min < value && value < max)
+        || Object.is(value, min)
+        || Object.is(value, max));
 function _includes(container, keyOrValue, value) {
     if (typeof container === "string" || container instanceof String) {
         return String(container).includes(keyOrValue);
@@ -1088,6 +1093,32 @@ function gte(value1, value2, message) {
         });
     }
 }
+function inRange(value, min, max, message) {
+    if (!_inRange(value, min, max)) {
+        _errorCheck(message);
+        let errorMessage = `[inRange] Assertion failed: ${_toSafeString(value)} should be in range ${_toSafeString(min)} and ${max} or the type of the values are not the same${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: `${_toSafeString(min)} and ${_toSafeString(max)}`,
+            operator: "inRange"
+        });
+    }
+}
+function notInRange(value, min, max, message) {
+    if (_inRange(value, min, max)) {
+        _errorCheck(message);
+        let errorMessage = `[notInRange] Assertion failed: ${_toSafeString(value)} should be not in range ${_toSafeString(min)} and ${max}${message ? " - " + _toSafeString(message) : ""}`;
+        throw new assert.AssertionError(errorMessage, {
+            message: errorMessage,
+            cause: errorMessage,
+            actual: value,
+            expected: `${_toSafeString(min)} and ${_toSafeString(max)}`,
+            operator: "notInRange"
+        });
+    }
+}
 function stringContains(actual, substring, message) {
     if (typeof actual !== "string") {
         _errorCheck(message);
@@ -1241,6 +1272,8 @@ assert["lt"] = lt;
 assert["lte"] = lte;
 assert["gt"] = gt;
 assert["gte"] = gte;
+assert["inRange"] = inRange;
+assert["notInRange"] = notInRange;
 assert["stringContains"] = stringContains;
 assert["stringNotContains"] = stringNotContains;
 assert["includes"] = includes;
