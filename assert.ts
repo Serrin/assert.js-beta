@@ -33,6 +33,16 @@ https://firefox-source-docs.mozilla.org/testing/assert.html
 
 
 /**
+ * @description False like values.
+ * @see https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+ * Missing values: NaN and document.all
+ *
+ * @internal
+ * */
+type Falsy = null | undefined | false | 0 | -0 | 0n | "";
+
+
+/**
  * @description Map-like object with string or symbol keys.
  *
  * @internal
@@ -1234,7 +1244,7 @@ async function doesNotReject (block: Function, Error_opt?: unknown, message?: un
  *
  * @param {unknown} [message] - Optional message or Error to throw.
  * @returns {void}
- * @throws {assert.AssertionError} If assertion is failed.
+ * @throws {assert.AssertionError}
  */
 function fail (message?: unknown): void {
   _errorCheck(message);
@@ -1252,7 +1262,7 @@ function fail (message?: unknown): void {
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function notOk (condition: unknown, message?: unknown): void {
+function notOk (condition: unknown, message?: unknown): asserts condition is Falsy {
   if (condition) {
     _errorCheck(message);
     let errorMessage =
@@ -1325,7 +1335,10 @@ function isFalse (condition: unknown, message?: unknown): asserts condition is f
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function is (value: unknown, expectedType: ExpectedType, message?: unknown): void {
+function is (
+  value: unknown,
+  expectedType: ExpectedType,
+  message?: unknown): void {
   if (!_isType(value, expectedType, false)) {
     _errorCheck(message);
     let errorMessage =

@@ -1,3 +1,4 @@
+type Falsy = null | undefined | false | 0 | -0 | 0n | "";
 type StringLike = string | String;
 type AssertionErrorOptions = {
     message?: unknown;
@@ -59,7 +60,7 @@ declare namespace assert {
     var rejects: (block: Function | Promise<any>, Error_opt?: unknown, message?: unknown) => Promise<any>;
     var doesNotReject: (block: Function, Error_opt?: unknown, message?: unknown) => Promise<any>;
     var fail: (message?: unknown) => void;
-    var notOk: (condition: unknown, message?: unknown) => void;
+    var notOk: (condition: unknown, message?: unknown) => asserts condition is Falsy;
     var isTrue: (condition: unknown, message?: unknown) => asserts condition is true;
     var isFalse: (condition: unknown, message?: unknown) => asserts condition is false;
     var is: (value: unknown, expectedType: ExpectedType, message?: unknown) => void;
