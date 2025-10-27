@@ -2,9 +2,10 @@
 
 Latest version: 1.0.3
 
-Date: 2025-10-25T15:59:06.551Z
+Date: 2025-10-27T19:53:27.654Z
 
 A modern, zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.
+
 Implements and extends the [CommonJS Unit Testing 1.0 spec](https://wiki.commonjs.org/wiki/Unit_Testing/1.0).
 
 ---
@@ -110,7 +111,7 @@ try {
 
 Added in v1.0.0
 
-Checks that `condition` is truthy. Throws an `AssertionError` if falsy.
+Ensures that `condition` is truthy. Throws an `AssertionError` if falsy.
 
 ````js
 assert(true); // passes
@@ -231,7 +232,7 @@ assert.notDeepEqual({ a: 1 }, { a: 2 }); // passes
 
 Added in v1.0.0
 
-Checks that a function __throws__.
+Ensures that a function __throws__.
 
 ````js
 assert.throws(() => { throw new TypeError("oops"); }, TypeError); // passes
@@ -243,7 +244,7 @@ assert.throws(() => { throw new Error("boom"); }, /boom/); // passes
 
 Added in v1.0.0
 
-Checks that an async function or promise __rejects__.
+Ensures that an async function or promise __rejects__.
 
 ````js
 await assert.rejects(async () => { throw new Error("fail"); }, /fail/);  // passes
@@ -343,7 +344,7 @@ assert.stringNotContains("hello", "z"); // passes
 
 Added in v1.0.0
 
-Checks `a < b` and value types have to be same type.
+Ensures `a < b` and value types have to be same type.
 
 ````js
 assert.lt(3, 5); // passes
@@ -354,7 +355,7 @@ assert.lt(3, 5); // passes
 
 Added in v1.0.0
 
-Checks `a <= b` and value types have to be same type.
+Ensures `a <= b` and value types have to be same type.
 
 ````js
 assert.lte(3, 3); // passes
@@ -366,7 +367,7 @@ assert.lte(2, 4); // passes
 
 Added in v1.0.0
 
-Checks `a > b` and value types have to be same type.
+Ensures `a > b` and value types have to be same type.
 
 ````js
 assert.gt(5, 3); // passes
@@ -377,7 +378,7 @@ assert.gt(5, 3); // passes
 
 Added in v1.0.0
 
-Checks `a >= b` and value types have to be same type.
+Ensures `a >= b` and value types have to be same type.
 
 ````js
 assert.gte(3, 3); // passes
@@ -385,11 +386,11 @@ assert.gte(5, 3); // passes
 // assert.gte(2, 3); // throws an error
 ````
 
-### `assert.inRange(value, min, max [message: string | Error]);`
+### `assert.inRange(value, min, max, [message: string | Error]);`
 
 Added in v1.0.3
 
-Checks `min <= value <= max` and the value types have to be same type.
+Ensures `min <= value <= max` and the value types have to be same type.
 
 ````js
 assert.inRange(1, -5, 3); // passes
@@ -398,11 +399,11 @@ assert.inRange(1, -5, 3); // passes
 // assert.inRange(2, 1n, 3); // throws an error
 ````
 
-### `assert.notInRange(value, min, max [message: string | Error]);`
+### `assert.notInRange(value, min, max, [message: string | Error]);`
 
 Added in v1.0.3
 
-Inverse of `inRange(value, min, max [message: string | Error]);`.
+Inverse of `inRange(value, min, max, [message: string | Error]);`.
 
 ````js
 assert.notInRange(0, 1, 3); // passes
@@ -797,7 +798,7 @@ assert.isNotObject("foo"); // passes
 
 ## Testrunner
 
-### `assert.testSync(block): { ok: true; value: any } | { ok: false; error: Error }`
+### `assert.testSync(block, name = "assert.testSync"): {ok: true, value: T, block: Function, name: string} | {ok: false, error: Error, block: Function, name: string}`
 
 Added in v1.0.0
 
@@ -811,7 +812,7 @@ if (assert.testCheck(assert.testSync(() => 42))) {
 }
 ````
 
-### `await assert.testASync(block): { ok: true; value: any } | { ok: false; error: Error }`
+### `await assert.testASync(block, name = "assert.testAsync"): {ok: true, value: T, block: Function, name: string} | {ok: false, error: Error, block: Function, name: string}`
 
 Added in v1.0.0
 
@@ -828,11 +829,11 @@ Asynchronously runs a block of code and returns either its result or the caught 
 })();
 ````
 
-### `assert.testCheck(result: { ok: true; value: any } | { ok: false; error: Error }): result.ok is true`
+### `assert.testCheck(result: {ok: true, value: T, block: Function, name: string} | {ok: false, error: Error, block: Function, name: string}): result.ok is true`
 
 Added in v1.0.0
 
-Checks if the result is successful.
+Ensures if the result is successful.
 
 ````js
 if (assert.testCheck(assert.testSync(() => 42))) {

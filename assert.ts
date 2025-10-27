@@ -83,7 +83,9 @@ type AssertionErrorOptions = {
  *
  * @internal
  * */
-type TestResult<T> = { ok: true; value: T } | { ok: false; error: Error };
+type TestResult<T> =
+  | {ok: true, value: T, block: Function, name: string}
+  | {ok: false, error: Error, block: Function, name: string};
 
 /**
  * @description Return the typeof operator result of the given value,
@@ -454,7 +456,7 @@ function _isDeepStrictEqual (value1: any, value2: any): boolean {
  * @param {ExpectedType | undefined} [expectedType] - The type(s) for checking.
  * @param {boolean} Throw Default false.
  * @returns {boolean} True if the value is the given type(s), false otherwise.
- * @throws If Throw is true and type check is failed.
+ * @throws If Throw is true and type checking is failed.
  * @internal
  */
 function _isType (
@@ -485,7 +487,7 @@ function _isType (
   /* Normalize expected to an array */
   let expectedArray: Array<string | Function> =
     Array.isArray(expectedType) ? expectedType : [expectedType];
-  /* Check against expected types or constructors */
+  /* Checks against expected types or constructors */
   let matched: boolean = expectedArray.some(
     function (item: string | Function) {
       if (_isString(item)) { return vType === item; }
@@ -677,7 +679,7 @@ function _toSafeString (value: unknown): string {
 
 
 /**
- * @description Check value1 is less than value2.
+ * @description Checks value1 is less than value2.
  *
  * @param {Comparable} value1 The value1 to check.
  * @param {Comparable} value2 The value2 to check.
@@ -689,7 +691,7 @@ const _isLessThan = (value1: Comparable, value2: Comparable): boolean =>
 
 
 /**
- * @description Check value is greater than or equal min and value is less than or equal max.
+ * @description Checks value is greater than or equal min and value is less than or equal max.
  *
  * @param {Comparable} value The value1 to check.
  * @param {Comparable} min The value2 to check.
@@ -814,7 +816,7 @@ function _isEmpty (value: any): boolean {
     || value instanceof String) {
     return value.length === 0;
   }
-  /* Check Map and Set */
+  /* Checks Map and Set */
   if (value instanceof Map || value instanceof Set) { return value.size === 0; }
   /* Check ArrayBuffer and DataView */
   if (value instanceof ArrayBuffer || value instanceof DataView) {
@@ -872,7 +874,12 @@ const _isPrimitive = (value: unknown): value is Primitive =>
  * @internal
  */
 function _errorCheck (value: unknown): void {
-  if (_isError(value)) { throw value; }
+  if (_isError(value)) {
+    if (typeof (Error as any).captureStackTrace === "function") {
+      (Error as any).captureStackTrace(assert, value);
+    }
+    throw value;
+  }
 }
 
 
@@ -909,7 +916,7 @@ class AssertionError extends Error {
 }
 
 /**
- * @description Checks that `condition` is truthy. Throws an `AssertionError` if falsy.
+ * @description Ensures that `condition` is truthy. Throws an `AssertionError` if falsy.
  *
  * @param {unknown} condition The value to check.
  * @param {unknown} [message] - Optional message or Error to throw.
@@ -1096,7 +1103,7 @@ function notDeepEqual (actual: unknown, expected: unknown, message?: unknown): v
 
 
 /**
- * @description Checks that a function throws.
+ * @description Ensures that a function throws.
  *
  * @param {Function} block
  * @param {unknown} Error_opt
@@ -2098,7 +2105,7 @@ function doesNotMatch (string: StringLike, regexp: RegExp, message?: unknown): v
 
 
 /**
- * @description Checks `a < b` and value types have to be same type.
+ * @description Ensures `a < b` and value types have to be same type.
  *
  * @param {any} value1 The value1 to check.
  * @param {any} value2 The value2 to check.
@@ -2123,7 +2130,7 @@ function lt (value1: any, value2: any, message?: unknown): void {
 
 
 /**
- * @description Checks `a >= b` and value types have to be same type.
+ * @description Ensures `a >= b` and value types have to be same type.
  *
  * @param {any} value1 The value1 to check.
  * @param {any} value2 The value2 to check.
@@ -2148,7 +2155,7 @@ function lte (value1: any, value2: any, message?: any): void {
 
 
 /**
- * @description Checks `a > b` and value types have to be same type.
+ * @description Ensures `a > b` and value types have to be same type.
  *
  * @param {any} value1 The value1 to check.
  * @param {any} value2 The value2 to check.
@@ -2173,7 +2180,7 @@ function gt (value1: any, value2: any, message?: any): void {
 
 
 /**
- * @description Checks `a <= b` and value types have to be same type.
+ * @description Ensures `a <= b` and value types have to be same type.
  *
  * @param {any} value1 The value1 to check.
  * @param {any} value2 The value2 to check.
@@ -2198,7 +2205,7 @@ function gte (value1: any, value2: any, message?: unknown): void {
 
 
 /**
- * @description Checks `min <= value <= max` and the value types have to be same type.
+ * @description Ensures `min <= value <= max` and the value types have to be same type.
  *
  * @param {any} value The value to check.
  * @param {any} min The min value to check.
@@ -2224,7 +2231,7 @@ function inRange (value: any, min: any, max: any, message?: unknown): void {
 
 
 /**
- * @description Inverse of `inRange(value, min, max [message: string | Error]);`.
+ * @description Inverse of `inRange(value, min, max, [message: string | Error]);`.
  *
  * @param {any} value The value to check.
  * @param {any} min The min value to check.
@@ -2411,13 +2418,15 @@ function doesNotInclude (
  * @param {Function} block - The function to execute.
  * @returns {TestResult<T>} The result of the block if successful, or the caught error if it throws.
  */
-function testSync<T>(block: () => T): TestResult<T> {
+function testSync<T>(block: () => T, name = "assert.testSync"): TestResult<T> {
   try {
-    return { ok: true, value: block() };
+    return {ok: true, value: block(), block: block, name: _toSafeString(name)};
   } catch (error) {
     return {
       ok: false,
       error: _isError(error) ? error : new Error(String(error)),
+      block: block,
+      name: _toSafeString(name)
     };
   }
 }
@@ -2429,13 +2438,17 @@ function testSync<T>(block: () => T): TestResult<T> {
  * @param {Function} block - The async function to execute.
  * @returns {Promise<TestResult<T>>} A promise that resolves to either the result or an Error.
  */
-async function testAsync<T>(block: () => Promise<T>): Promise<TestResult<T>> {
+async function testAsync<T>(
+  block: () => Promise<T>,
+  name = "assert.testAsync"): Promise<TestResult<T>> {
   try {
-    return { ok: true, value: await block() };
+    return { ok: true, value: await block(), block: block, name: _toSafeString(name) };
   } catch (error) {
     return {
       ok: false,
       error: _isError(error) ? error : new Error(String(error)),
+      block: block,
+      name: _toSafeString(name)
     };
   }
 }
@@ -2447,7 +2460,7 @@ async function testAsync<T>(block: () => Promise<T>): Promise<TestResult<T>> {
  * @param {TestResult<T>} result - The result to check.
  * @returns {boolean} True if the result is successful, false otherwise.
  */
-function testCheck<T>(result: TestResult<T>): result is { ok: true; value: T} {
+function testCheck<T>(result: TestResult<T>): result is { ok: true; value: T, block: Function, name: string} {
   return result.ok;
 }
 

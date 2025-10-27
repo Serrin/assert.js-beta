@@ -12,9 +12,13 @@ type AssertionErrorOptions = {
 type TestResult<T> = {
     ok: true;
     value: T;
+    block: Function;
+    name: string;
 } | {
     ok: false;
     error: Error;
+    block: Function;
+    name: string;
 };
 type ExpectedType = string | Function | Array<string | Function>;
 type IncludesOptions = {
@@ -103,11 +107,13 @@ declare namespace assert {
     var stringNotContains: (actual: StringLike, substring: StringLike, message?: unknown) => void;
     var includes: (container: any, options: IncludesOptions, message?: unknown) => void;
     var doesNotInclude: (container: any, options: IncludesOptions, message?: unknown) => void;
-    var testSync: <T>(block: () => T) => TestResult<T>;
-    var testAsync: <T>(block: () => Promise<T>) => Promise<TestResult<T>>;
+    var testSync: <T>(block: () => T, name?: string) => TestResult<T>;
+    var testAsync: <T>(block: () => Promise<T>, name?: string) => Promise<TestResult<T>>;
     var testCheck: <T>(result: TestResult<T>) => result is {
         ok: true;
         value: T;
+        block: Function;
+        name: string;
     };
 }
 export { assert };

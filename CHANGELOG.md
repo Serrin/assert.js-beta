@@ -1,6 +1,16 @@
 
 # assert.js version history
 
+## assert.js v1.0.3
+
+1. Documentation, pdf and code fixes.
+2. Add inner links in the __readme.html__.
+3. Add 2 new properties of the TestResult object (`block`, `name`) in the testrunner functions.
+4. Add these functions:
+
+- `inRange(value, min, max, [message: string | Error]);`
+- `notInRange(value, min, max, [message: string | Error]);`
+
 ## assert.js v1.0.2
 
 1. Documentation, pdf and code fixes.

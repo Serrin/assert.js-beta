@@ -9,12 +9,10 @@
 <meta name="Copyright" content="(C) Copyright Czigler Ferenc" />
 <link rel="stylesheet" href="u87.css" type="text/css" />
 <script type="module">
-// Import the assert function
-//import assert from "./assert.js";
-//globalThis.assert = assert;
-// Import the assert function as defaultExport
-import defaultExport from "./assert.js";
-globalThis.assert = defaultExport;
+import assert from "./assert.js";
+globalThis.assert = assert;
+//import defaultExport from "./assert.js";
+//globalThis.assert = defaultExport;
 </script>
 <script src="unittest.js"></script>
 <style>
@@ -33,7 +31,7 @@ body {
 
 <p>Latest version: 1.0.3</p>
 
-<p>Date: 2025-10-25T15:59:06.551Z</p>
+<p>Date: 2025-10-27T19:53:27.654Z</p>
 
 <p>A modern, zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.</p>
 
@@ -189,7 +187,7 @@ globalThis.assert = assert;</pre>
 
 <p>Added in v1.0.0</p>
 
-<p>Checks that <code>condition</code> is truthy. Throws an <code>AssertionError</code> if falsy.</p>
+<p>Ensures that <code>condition</code> is truthy. Throws an <code>AssertionError</code> if falsy.</p>
 
 <pre>assert(true); // passes
 // assert(false, "should be true"); // throws an error fails</pre>
@@ -310,7 +308,7 @@ assert.deepEqual([1, 2], [1, 2]); // passes
 
 <p>Added in v1.0.0</p>
 
-<p>Checks that a function <strong>throws</strong>.</p>
+<p>Ensures that a function <strong>throws</strong>.</p>
 
 <pre>assert.throws(() =&gt; { throw new TypeError("oops"); }, TypeError); // passes
 assert.throws(() =&gt; { throw new Error("boom"); }, /boom/); // passes
@@ -322,7 +320,7 @@ assert.throws(() =&gt; { throw new Error("boom"); }, /boom/); // passes
 
 <p>Added in v1.0.0</p>
 
-<p>Checks that an async function or promise <strong>rejects</strong>.</p>
+<p>Ensures that an async function or promise <strong>rejects</strong>.</p>
 
 <pre>await assert.rejects(async () =&gt; { throw new Error("fail"); }, /fail/);  // passes
 // await assert.rejects(async () =&gt; 42); // resolved, didn’t reject</pre>
@@ -422,7 +420,7 @@ assert.throws(() =&gt; { throw new Error("boom"); }, /boom/); // passes
 
 <p>Added in v1.0.0</p>
 
-<p>Checks <code>a &lt; b</code> and the value types have to be same type.</p>
+<p>Ensures <code>a &lt; b</code> and the value types have to be same type.</p>
 
 <pre>assert.lt(3, 5); // passes
 // assert.lt(5, 3); // throws an error</pre>
@@ -433,7 +431,7 @@ assert.throws(() =&gt; { throw new Error("boom"); }, /boom/); // passes
 
 <p>Added in v1.0.0</p>
 
-<p>Checks <code>a &lt;= b</code> and the value types have to be same type.</p>
+<p>Ensures <code>a &lt;= b</code> and the value types have to be same type.</p>
 
 <pre>assert.lte(3, 3); // passes
 assert.lte(2, 4); // passes
@@ -445,7 +443,7 @@ assert.lte(2, 4); // passes
 
 <p>Added in v1.0.0</p>
 
-<p>Checks <code>a &gt; b</code> and the value types have to be same type.</p>
+<p>Ensures <code>a &gt; b</code> and the value types have to be same type.</p>
 
 <pre>assert.gt(5, 3); // passes
 // assert.gt(3, 5); // throws an error</pre>
@@ -456,7 +454,7 @@ assert.lte(2, 4); // passes
 
 <p>Added in v1.0.0</p>
 
-<p>Checks <code>a &gt;= b</code> and the value types have to be same type.</p>
+<p>Ensures <code>a &gt;= b</code> and the value types have to be same type.</p>
 
 <pre>assert.gte(3, 3); // passes
 assert.gte(5, 3); // passes
@@ -464,11 +462,11 @@ assert.gte(5, 3); // passes
 
 <p><a href="#Summary">&#9650; Back to Summary</a></p>
 
-<h3 id="fn-inRange" class="round-25 padding font-monospace bg-lightblue">assert.inRange(value, min, max [message: string | Error]);</h3>
+<h3 id="fn-inRange" class="round-25 padding font-monospace bg-lightblue">assert.inRange(value, min, max, [message: string | Error]);</h3>
 
 <p>Added in v1.0.3</p>
 
-Checks <code>min &#60;= value &#60;= max</code> and the value types have to be same type.</p>
+Ensures <code>min &#60;= value &#60;= max</code> and the value types have to be same type.</p>
 
 <pre>assert.inRange(1, -5, 3); // passes
 // assert.inRange(0, 1, 3); // throws an error
@@ -477,11 +475,11 @@ Checks <code>min &#60;= value &#60;= max</code> and the value types have to be s
 
 <p><a href="#Summary">&#9650; Back to Summary</a></p>
 
-<h3 id="fn-notInRange" class="round-25 padding font-monospace bg-lightblue">assert.notInRange(value, min, max [message: string | Error]);</h3>
+<h3 id="fn-notInRange" class="round-25 padding font-monospace bg-lightblue">assert.notInRange(value, min, max, [message: string | Error]);</h3>
 
 <p>Added in v1.0.3</p>
 
-<p>Inverse of <code>inRange(value, min, max [message: string | Error]);</code>.</p>
+<p>Inverse of <code>inRange(value, min, max, [message: string | Error]);</code>.</p>
 
 <pre>assert.notInRange(0, 1, 3); // passes
 assert.notInRange(4, 1, 3); // passes
@@ -880,7 +878,7 @@ assert.isNotObject("foo"); // passes
 
 <h2 id="category-Testrunner">Testrunner</h2>
 
-<h3 id="fn-testSync" class="round-25 padding font-monospace bg-lightblue">assert.testSync(block): { ok: true; value: any } | { ok: false; error: Error }</h3>
+<h3 id="fn-testSync" class="round-25 padding font-monospace bg-lightblue">assert.testSync(block, name = "assert.testSync"): {ok: true, value: T, block: Function, name: string} | {ok: false, error: Error, block: Function, name: string}</h3>
 
 <p>Added in v1.0.0</p>
 
@@ -894,7 +892,7 @@ assert.isNotObject("foo"); // passes
 
 <p><a href="#Summary">&#9650; Back to Summary</a></p>
 
-<h3 id="fn-testAsync" class="round-25 padding font-monospace bg-lightblue">await assert.testAsync(block): { ok: true; value: any } | { ok: false; error: Error }</h3>
+<h3 id="fn-testAsync" class="round-25 padding font-monospace bg-lightblue">await assert.testAsync(block, name = "assert.testAsync"): {ok: true, value: T, block: Function, name: string} | {ok: false, error: Error, block: Function, name: string}</h3>
 
 <p>Added in v1.0.0</p>
 
@@ -911,11 +909,11 @@ assert.isNotObject("foo"); // passes
 
 <p><a href="#Summary">&#9650; Back to Summary</a></p>
 
-<h3 id="fn-testCheck" class="round-25 padding font-monospace bg-lightblue">assert.testCheck(result: { ok: true; value: any } | { ok: false; error: Error }): result.ok is true</h3>
+<h3 id="fn-testCheck" class="round-25 padding font-monospace bg-lightblue">assert.testCheck(result: {ok: true, value: T, block: Function, name: string} | {ok: false, error: Error, block: Function, name: string}): result.ok is true</h3>
 
 <p>Added in v1.0.0</p>
 
-<p>Checks if the result is successful.</p>
+<p>Ensures if the result is successful.</p>
 
 <pre>if (assert.testCheck(assert.testSync(() => 42))) {
   console.log("passed");

@@ -1,15 +1,15 @@
-// @ts-check
+// @ts-nocheck
 "use strict";
 
 
 /* assert.js v1.0.3 testcases for Node.js environment */
 
 
-// Import the assert function
+/* Import the assert function */
 import assert from "./assert.js";
 globalThis.assert = assert;
 
-// import the defaultExport object
+/* import the defaultExport object */
 //import defaultExport from "./assert.js";
 //globalThis.assert = defaultExport;
 
@@ -218,16 +218,26 @@ function autoTestSync () {
     );
   }
 
-  if (assert.testCheck(assert.testSync(() => 42))) {
+  let testSyncResult01 = assert.testSync(() => 42);
+  if (assert.testCheck(testSyncResult01)) {
+    assert.isFunction(testSyncResult01.block, "testSync(); 01 - passed - block");
+    assert.isString(testSyncResult01.name, "testSync(); 01 - passed - name");
     /* console.log("testSync(); 01 - passed"); */
   } else {
+    assert.isFunction(testSyncResult01.block, "testSync(); 01 - failed - block");
+    assert.isString(testSyncResult01.name, "testSync(); 01 - failed - name");
     console.error("testSync(); 01 - failed");
   }
 
-  if (assert.testCheck(assert.testSync(function () { throw new Error("lorem"); }))) {
+  let testSyncResult02 = assert.testSync(function () { throw new Error("lorem"); })
+  if (assert.testCheck(testSyncResult02)) {
+    assert.isFunction(testSyncResult02.block, "testSync(); 02 - failed - block");
+    assert.isString(testSyncResult02.name, "testSync(); 02 - failed - name");
     console.error("testSync(); 02 - failed");
   } else {
     /* console.log("testSync(); 02 - passed"); */
+    assert.isFunction(testSyncResult02.block, "testSync(); 02 - passed - block");
+    assert.isString(testSyncResult02.name, "testSync(); 02 - passed - name");
   }
 
   // @ts-ignore
@@ -511,8 +521,12 @@ async function autoTestAsync () {
   (async () => {
     const result = await assert.testAsync(async function () { return 42; });
     if (assert.testCheck(result)) {
+      assert.isFunction(result.block, "testAsync(); 01 - passed - block");
+      assert.isString(result.name, "testAsync(); 01 - passed - name");
       /* console.log("testAsync(); 01 - passed"); */
     } else {
+      assert.isFunction(result.block, "testAsync(); 01 - failed - block");
+      assert.isString(result.name, "testAsync(); 01 - failed - name");
       console.error("testAsync(); 01 - failed");
     }
   })();
@@ -520,8 +534,12 @@ async function autoTestAsync () {
   (async () => {
     const result = await assert.testAsync(async function () { throw new Error("lorem"); });
     if (assert.testCheck(result)) {
+      assert.isFunction(result.block, "testAsync(); 02 - failed - block");
+      assert.isString(result.name, "testAsync(); 02 - failed - name");
       console.log("testAsync(); 02 - failed");
     } else {
+      assert.isFunction(result.block, "testAsync(); 02 - passed - block");
+      assert.isString(result.name, "testAsync(); 02 - passed - name");
       /* console.error("testAsync(); 02 - passed"); */
     }
   })();
