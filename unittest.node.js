@@ -2,7 +2,7 @@
 "use strict";
 
 
-/* assert.js v1.0.3 testcases for Node.js environment */
+/* assert.js v1.0.4 testcases for Node.js environment */
 
 
 /* Import the assert function */

@@ -1,6 +1,6 @@
 # assert.js
 
-Latest version: 1.0.3
+Latest version: 1.0.4
 
 Date: 2025-10-27T19:53:27.654Z
 
@@ -80,7 +80,7 @@ Added in v1.0.0
 Returns the library version string.
 
 ````js
-console.log(assert.VERSION); // "assert.js v1.0.3"
+console.log(assert.VERSION); // "assert.js v1.0.4"
 ````
 
 ---

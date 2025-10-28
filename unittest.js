@@ -2,7 +2,7 @@
 "use strict";
 
 
-/* assert.js v1.0.3 testcases for ESM environment */
+/* assert.js v1.0.4 testcases for ESM environment */
 
 
 /**
@@ -13,7 +13,6 @@
  * @param {function} callback - The function to test
  */
 function unitTest (message, error = false, callback) {
-  /** @type {boolean} */
   let result;
   if (error) {
     try {
