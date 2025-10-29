@@ -60,11 +60,11 @@ declare namespace assert {
     var is: (value: unknown, expectedType: ExpectedType, message?: unknown) => void;
     var isNot: (value: unknown, expectedType: ExpectedType, message?: unknown) => void;
     var isNullish: (value: unknown, message?: unknown) => asserts value is Nullish;
-    var isNotNullish: (value: unknown, message?: unknown) => asserts value is NonNullable<unknown>;
+    var isNonNullable: (value: unknown, message?: unknown) => asserts value is NonNullable<unknown>;
     var isNull: (value: unknown, message?: unknown) => asserts value is null;
     var isNotNull: (value: unknown, message?: unknown) => asserts value is Exclude<unknown, null>;
     var isUndefined: (value: unknown, message?: unknown) => asserts value is undefined;
-    var isNotUndefined: (value: unknown, message?: unknown) => asserts value is Exclude<unknown, undefined>;
+    var isDefined: (value: unknown, message?: unknown) => asserts value is Exclude<unknown, undefined>;
     var isString: (value: unknown, message?: unknown) => asserts value is string;
     var isNotString: (value: unknown, message?: unknown) => asserts value is Exclude<unknown, string>;
     var isNumber: (value: unknown, message?: unknown) => asserts value is number;

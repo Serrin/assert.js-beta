@@ -10,14 +10,14 @@
 
 /**
  * @name assert.js
- * @version 1.0.4
+ * @version 1.1.0
  * @author Ferenc Czigler
  * @see https://github.com/Serrin/assert.js/
  * @license MIT https://opensource.org/licenses/MIT
  */
 
 
-const VERSION = "assert.js v1.0.4";
+const VERSION = "assert.js v1.1.0";
 
 
 /*
@@ -41,7 +41,7 @@ https://google.github.io/closure-library/api/goog.asserts.html
  * Missing values: NaN and document.all
  *
  * @internal
- * */
+ */
 type Falsy = null | undefined | false | 0 | -0 | 0n | "";
 /* type Truthy<T> = Exclude<T, Falsy>; */
 
@@ -49,14 +49,14 @@ type Falsy = null | undefined | false | 0 | -0 | 0n | "";
  * @description Map-like object with string or symbol keys.
  *
  * @internal
- * */
+ */
 type MapLike = { [key: string | symbol]: any };
 
 /**
  * @description string or String object
  *
  * @internal
- * */
+ */
 type StringLike = string | String;
 
 /**
@@ -85,7 +85,7 @@ type AssertionErrorOptions = {
  * @description The result of a test operation, indicating success or failure.
  *
  * @internal
- * */
+ */
 type TestResult<T> =
   | {ok: true, value: T, block: Function, name: string}
   | {ok: false, error: Error, block: Function, name: string};
@@ -1249,11 +1249,11 @@ function isNullish (value: unknown, message?: unknown): asserts value is Nullish
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotNullish (value: unknown, message?: unknown): asserts value is NonNullable<unknown> {
+function isNonNullable (value: unknown, message?: unknown): asserts value is NonNullable<unknown> {
   if (typeof value === "undefined" || value === null) {
     _errorCheck(message);
     let errorMessage =
-      `[isNotNullish] Assertion failed: ${_toSafeString(value)} should be not null or undefined${message ? " - " + _toSafeString(message) : ""}`;
+      `[isNonNullable] Assertion failed: ${_toSafeString(value)} should be not null or undefined${message ? " - " + _toSafeString(message) : ""}`;
     throw new assert.AssertionError(errorMessage, {
       message: errorMessage,
       cause: errorMessage,
@@ -1345,11 +1345,11 @@ function isUndefined (value: unknown, message?: unknown): asserts value is undef
  * @returns {void}
  * @throws {assert.AssertionError} If assertion is failed.
  */
-function isNotUndefined (value: unknown, message?: unknown): asserts value is Exclude<unknown, undefined> {
+function isDefined (value: unknown, message?: unknown): asserts value is Exclude<unknown, undefined> {
   if (typeof value === "undefined") {
     _errorCheck(message);
     let errorMessage =
-      `[isNotUndefined] Assertion failed: ${_toSafeString(value)} should be not undefined${message ? " - " + _toSafeString(message) : ""}`;
+      `[isDefined] Assertion failed: ${_toSafeString(value)} should be not undefined${message ? " - " + _toSafeString(message) : ""}`;
     throw new assert.AssertionError(errorMessage, {
       message: errorMessage,
       cause: errorMessage,
@@ -2311,11 +2311,11 @@ assert["isFalse"] = isFalse;
 assert["is"] = is;
 assert["isNot"] = isNot;
 assert["isNullish"] = isNullish;
-assert["isNotNullish"] = isNotNullish;
+assert["isNonNullable"] = isNonNullable;
 assert["isNull"] = isNull;
 assert["isNotNull"] = isNotNull;
 assert["isUndefined"] = isUndefined;
-assert["isNotUndefined"] = isNotUndefined;
+assert["isDefined"] = isDefined;
 assert["isString"] = isString;
 assert["isNotString"] = isNotString;
 assert["isNumber"] = isNumber;

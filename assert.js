@@ -1,5 +1,5 @@
 "use strict";
-const VERSION = "assert.js v1.0.4";
+const VERSION = "assert.js v1.1.0";
 (function (global) {
     if (!global.globalThis) {
         if (Object.defineProperty) {
@@ -664,10 +664,10 @@ function isNullish(value, message) {
         });
     }
 }
-function isNotNullish(value, message) {
+function isNonNullable(value, message) {
     if (typeof value === "undefined" || value === null) {
         _errorCheck(message);
-        let errorMessage = `[isNotNullish] Assertion failed: ${_toSafeString(value)} should be not null or undefined${message ? " - " + _toSafeString(message) : ""}`;
+        let errorMessage = `[isNonNullable] Assertion failed: ${_toSafeString(value)} should be not null or undefined${message ? " - " + _toSafeString(message) : ""}`;
         throw new assert.AssertionError(errorMessage, {
             message: errorMessage,
             cause: errorMessage,
@@ -716,10 +716,10 @@ function isUndefined(value, message) {
         });
     }
 }
-function isNotUndefined(value, message) {
+function isDefined(value, message) {
     if (typeof value === "undefined") {
         _errorCheck(message);
-        let errorMessage = `[isNotUndefined] Assertion failed: ${_toSafeString(value)} should be not undefined${message ? " - " + _toSafeString(message) : ""}`;
+        let errorMessage = `[isDefined] Assertion failed: ${_toSafeString(value)} should be not undefined${message ? " - " + _toSafeString(message) : ""}`;
         throw new assert.AssertionError(errorMessage, {
             message: errorMessage,
             cause: errorMessage,
@@ -1233,11 +1233,11 @@ assert["isFalse"] = isFalse;
 assert["is"] = is;
 assert["isNot"] = isNot;
 assert["isNullish"] = isNullish;
-assert["isNotNullish"] = isNotNullish;
+assert["isNonNullable"] = isNonNullable;
 assert["isNull"] = isNull;
 assert["isNotNull"] = isNotNull;
 assert["isUndefined"] = isUndefined;
-assert["isNotUndefined"] = isNotUndefined;
+assert["isDefined"] = isDefined;
 assert["isString"] = isString;
 assert["isNotString"] = isNotString;
 assert["isNumber"] = isNumber;
