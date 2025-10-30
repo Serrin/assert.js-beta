@@ -2,7 +2,7 @@
 
 Latest version: 1.1.0
 
-Date: 2025-10-27T19:53:27.654Z
+Date: 2025-10-29T19:32:23.980Z
 
 A modern, zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.
 
@@ -15,7 +15,7 @@ Implements and extends the [CommonJS Unit Testing 1.0 spec](https://wiki.commonj
 Category | Assertions
 ---------|-------------
 Constants | `assert.VERSION;`
-Errors | `assert.AssertionError`
+Errors | `assert.AssertionError();`
 Basic | `assert();`, `assert.ok();`, `assert.notOk();`, `assert.fail();`
 Equality | `assert.equal();`, `assert.notEqual();`, `assert.strictEqual();`, `assert.notStrictEqual();`, `assert.deepEqual();`, `assert.notDeepEqual();`
 Exception | `assert.throws();`, `await assert.rejects();`, `await assert.doesNotReject();`
@@ -87,7 +87,7 @@ console.log(assert.VERSION); // "assert.js v1.1.0"
 
 ## Errors
 
-### `assert.AssertionError`
+### `assert.AssertionError([message], [options]);`
 
 Added in v1.0.0
 

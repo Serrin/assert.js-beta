@@ -1,5 +1,6 @@
 type Falsy = null | undefined | false | 0 | -0 | 0n | "";
 type StringLike = string | String;
+type Comparable = number | bigint | string | boolean;
 type AssertionErrorOptions = {
     message?: unknown;
     cause?: unknown;
@@ -34,13 +35,13 @@ declare class AssertionError extends Error {
     expected?: unknown;
     operator?: string;
     code?: string;
-    constructor(message: string, options?: AssertionErrorOptions);
+    constructor(message?: string, options?: AssertionErrorOptions);
 }
 declare function assert(condition: unknown, message?: unknown): asserts condition;
 declare namespace assert {
     var VERSION: string;
     var AssertionError: {
-        new (message: string, options?: AssertionErrorOptions): AssertionError;
+        new (message?: string, options?: AssertionErrorOptions): AssertionError;
         isError(error: unknown): error is Error;
     };
     var ok: (condition: unknown, message?: unknown) => asserts condition;
@@ -51,8 +52,8 @@ declare namespace assert {
     var deepEqual: (actual: unknown, expected: unknown, message?: unknown) => void;
     var notDeepEqual: (actual: unknown, expected: unknown, message?: unknown) => void;
     var throws: (block: Function, Error_opt?: unknown, message?: unknown) => Error | undefined;
-    var rejects: (block: Function | Promise<any>, Error_opt?: unknown, message?: unknown) => Promise<any>;
-    var doesNotReject: (block: Function, Error_opt?: unknown, message?: unknown) => Promise<any>;
+    var rejects: (block: Function | Promise<unknown>, Error_opt?: unknown, message?: unknown) => Promise<unknown>;
+    var doesNotReject: (block: Function, Error_opt?: unknown, message?: unknown) => Promise<unknown>;
     var fail: (message?: unknown) => void;
     var notOk: (condition: unknown, message?: unknown) => asserts condition is Falsy;
     var isTrue: (condition: unknown, message?: unknown) => asserts condition is true;
@@ -87,12 +88,12 @@ declare namespace assert {
     var isNotEmpty: (value: unknown, message?: unknown) => void;
     var match: (string: StringLike, regexp: RegExp, message?: unknown) => void;
     var doesNotMatch: (string: StringLike, regexp: RegExp, message?: unknown) => void;
-    var lt: (value1: any, value2: any, message?: unknown) => void;
-    var lte: (value1: any, value2: any, message?: any) => void;
-    var gt: (value1: any, value2: any, message?: any) => void;
-    var gte: (value1: any, value2: any, message?: unknown) => void;
-    var inRange: (value: any, min: any, max: any, message?: unknown) => void;
-    var notInRange: (value: any, min: any, max: any, message?: unknown) => void;
+    var lt: (value1: Comparable, value2: Comparable, message?: unknown) => void;
+    var lte: (value1: Comparable, value2: Comparable, message?: unknown) => void;
+    var gt: (value1: Comparable, value2: Comparable, message?: unknown) => void;
+    var gte: (value1: Comparable, value2: Comparable, message?: unknown) => void;
+    var inRange: (value: Comparable, min: Comparable, max: Comparable, message?: unknown) => void;
+    var notInRange: (value: Comparable, min: Comparable, max: Comparable, message?: unknown) => void;
     var stringContains: (actual: StringLike, substring: StringLike, message?: unknown) => void;
     var stringNotContains: (actual: StringLike, substring: StringLike, message?: unknown) => void;
     var includes: (container: any, options: IncludesOptions, message?: unknown) => void;
