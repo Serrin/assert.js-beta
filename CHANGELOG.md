@@ -8,7 +8,7 @@
 3. __FIX__ Change the order of arguments in these functions: `testSync();` and `testAsync();`
 4. __ADD__ New class: `assert.TestSuite();`
 5. __ADD__ Add a new TS type: `type Message = string | Error;`.
-6. __ADD__ Enchance the helper function `_isSameType()` with a new argument.
+6. __ADD__ Enhance the helper function `_isSameType()` with a new argument.
 7. __ADD__ Developer (helper) functions in properties of function `assert();`, but only during development.
 8. __ADD__ Add aliases:
 

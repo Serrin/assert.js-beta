@@ -2,9 +2,9 @@
 
 Latest version: 1.2.0
 
-Date: 2026-05-13T19:27:38.793Z
+Date: 2026-05-17T17:49:48.213Z
 
-A modern, zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.
+A zero-dependency assertion library for Node.js, Deno and browser (ESM) environments.
 
 Implements and extends the [CommonJS Unit Testing 1.0 spec](https://wiki.commonjs.org/wiki/Unit_Testing/1.0).
 
