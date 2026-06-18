@@ -19,6 +19,8 @@ if (!("isError" in Error)) {
         return (className === "error" || className === "domexception");
     };
 }
+const { isError } = Error;
+const { isArray } = Array;
 const _oIs = Object.is;
 const _typeOf = (x) => x === null ? "null" : typeof x;
 const _isSameType = (x, y, type) => typeof type === "string"
@@ -71,7 +73,7 @@ function _isDeepEqual(x, y) {
             || _isSameInstance(x, y, BigInt)) {
             return _oIs(x.valueOf(), y.valueOf());
         }
-        if (Array.isArray(x) && Array.isArray(y)) {
+        if (isArray(x) && isArray(y)) {
             if (x.length !== y.length) {
                 return false;
             }
@@ -163,7 +165,7 @@ function _is(v, eT, caller = "is") {
     if (eTT === "function") {
         return v instanceof eT;
     }
-    if (Array.isArray(eT)) {
+    if (isArray(eT)) {
         return eT.some(function (item) {
             if (typeof item === "string") {
                 return _typeOf(v) === item;
@@ -204,7 +206,7 @@ function _str(v) {
         .includes(_typeOf(v))) {
         return String(v);
     }
-    if (Array.isArray(v)) {
+    if (isArray(v)) {
         return `[${v.map(v => _str(v)).join(", ")}]`;
     }
     if (v instanceof Map) {
@@ -254,7 +256,7 @@ function _includes(container, keyOrValue, valueIfKey) {
         }
         return false;
     }
-    if (Array.isArray(container)
+    if (isArray(container)
         || _isTypedArray(container)
         || container instanceof Set
         || typeof container[Symbol.iterator] === "function") {
@@ -277,7 +279,7 @@ function _isEmpty(v) {
     if (v == null || v !== v) {
         return true;
     }
-    if (Array.isArray(v)
+    if (isArray(v)
         || _isTypedArray(v)
         || typeof v === "string"
         || v instanceof String) {
@@ -318,7 +320,7 @@ function _isEmpty(v) {
 const _isPrimitive = (v) => _typeOf(v) !== "object" && typeof v !== "function";
 const _isFloat = (v) => typeof v === "number" && v === v && !Number.isInteger(v);
 function _errorCheck(msg, caller) {
-    if (Error.isError(msg)) {
+    if (isError(msg)) {
         if (typeof Error.captureStackTrace === "function") {
             Error.captureStackTrace(caller, msg);
         }
@@ -366,8 +368,8 @@ function equal(actual, expected, message) {
         _errorCheck(message, equal);
         throw new AssertionError({
             message: `[equal] Assertion failed: ${_str(actual)} and ${_str(expected)} should be equal${_msg(message)}`,
-            actual: actual,
-            expected: expected,
+            actual,
+            expected,
             operator: "!="
         });
     }
@@ -380,8 +382,8 @@ function notEqual(actual, expected, message) {
         _errorCheck(message, notEqual);
         throw new AssertionError({
             message: `[notEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be equal${_msg(message)}`,
-            actual: actual,
-            expected: expected,
+            actual,
+            expected,
             operator: "=="
         });
     }
@@ -391,8 +393,8 @@ function strictEqual(actual, expected, message) {
         _errorCheck(message, strictEqual);
         throw new AssertionError({
             message: `[strictEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be strictly equal${_msg(message)}`,
-            actual: actual,
-            expected: expected,
+            actual,
+            expected,
             operator: "strictEqual"
         });
     }
@@ -402,8 +404,8 @@ function notStrictEqual(actual, expected, message) {
         _errorCheck(message, notStrictEqual);
         throw new AssertionError({
             message: `[notStrictEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should not be strictly equal${_msg(message)}`,
-            actual: actual,
-            expected: expected,
+            actual,
+            expected,
             operator: "notStrictEqual"
         });
     }
@@ -413,8 +415,8 @@ function deepEqual(actual, expected, message) {
         _errorCheck(message, deepEqual);
         throw new AssertionError({
             message: `[deepEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be deep equal${_msg(message)}`,
-            actual: actual,
-            expected: expected,
+            actual,
+            expected,
             operator: "deepEqual"
         });
     }
@@ -424,8 +426,8 @@ function notDeepEqual(actual, expected, message) {
         _errorCheck(message, notDeepEqual);
         throw new AssertionError({
             message: `[notDeepEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should not be deep equal${_msg(message)}`,
-            actual: actual,
-            expected: expected,
+            actual,
+            expected,
             operator: "notDeepEqual"
         });
     }
@@ -506,7 +508,7 @@ async function doesNotReject(block, Error_opt, message) {
                 || (Error_opt instanceof RegExp
                     && Error_opt.test(catchedError.message));
             if (errorMatches) {
-                if (Error.isError(message))
+                if (isError(message))
                     throw message;
                 throw new AssertionError({
                     message: `[doesNotReject] Assertion failed: function/promise rejected with disallowed error: ${_str(catchedError)}${_msg(message)}`,
@@ -621,7 +623,7 @@ function isInt(value, message) {
         throw new AssertionError({
             message: `[isInt] Assertion failed: ${_str(value)} should be an integer${_msg(message)}`,
             actual: value,
-            expected: "",
+            expected: undefined,
             operator: "isInt"
         });
     }
@@ -632,7 +634,7 @@ function isNotInt(value, message) {
         throw new AssertionError({
             message: `[isNotInt] Assertion failed: ${_str(value)} should not be an integer${_msg(message)}`,
             actual: value,
-            expected: "",
+            expected: undefined,
             operator: "isNotInt"
         });
     }
@@ -643,7 +645,7 @@ function isFloat(value, message) {
         throw new AssertionError({
             message: `[isFloat] Assertion failed: ${_str(value)} should be a float${_msg(message)}`,
             actual: value,
-            expected: "",
+            expected: undefined,
             operator: "isFloat"
         });
     }
@@ -654,7 +656,7 @@ function isNotFloat(value, message) {
         throw new AssertionError({
             message: `[isNotFloat] Assertion failed: ${_str(value)} should not be a float${_msg(message)}`,
             actual: value,
-            expected: "",
+            expected: undefined,
             operator: "isNotFloat"
         });
     }
@@ -665,7 +667,7 @@ function isEmpty(value, message) {
         throw new AssertionError({
             message: `[isEmpty] Assertion failed: ${_str(value)} should be empty${_msg(message)}`,
             actual: value,
-            expected: "",
+            expected: undefined,
             operator: "isEmpty"
         });
     }
@@ -676,7 +678,7 @@ function isNotEmpty(value, message) {
         throw new AssertionError({
             message: `[isNotEmpty] Assertion failed: ${_str(value)} should be not empty${_msg(message)}`,
             actual: value,
-            expected: "",
+            expected: undefined,
             operator: "isNotEmpty"
         });
     }
@@ -884,8 +886,8 @@ function testSync(name = "assert.testSync", block) {
     catch (error) {
         return {
             ok: false,
-            error: Error.isError(error) ? error : new Error(_str(error)),
-            block: block,
+            error: isError(error) ? error : new Error(_str(error)),
+            block,
             name: _str(name)
         };
     }
@@ -895,15 +897,15 @@ async function testAsync(name = "assert.testAsync", block) {
         return {
             ok: true,
             value: await block(),
-            block: block,
+            block,
             name: _str(name)
         };
     }
     catch (error) {
         return {
             ok: false,
-            error: Error.isError(error) ? error : new Error(_str(error)),
-            block: block,
+            error: isError(error) ? error : new Error(_str(error)),
+            block,
             name: _str(name)
         };
     }

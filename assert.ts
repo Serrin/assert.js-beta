@@ -190,6 +190,8 @@ if (!("isError" in Error)) {
 
 
 /* Standard helpers */
+const { isError } = Error;
+const { isArray } = Array;
 const _oIs = Object.is;
 
 
@@ -304,7 +306,7 @@ function _isDeepEqual (x: any, y: any): boolean {
       return _oIs(x.valueOf(), y.valueOf());
     }
     /* objects / Array */
-    if (Array.isArray(x) && Array.isArray(y)) {
+    if (isArray(x) && isArray(y)) {
       if (x.length !== y.length) { return false; }
       if (x.length === 0) { return true; }
       return x.every((v: unknown, i: any): boolean => _isDeepEqual(v, y[i]));
@@ -400,7 +402,7 @@ function _is (v: unknown, eT: ExpectedType, caller: string = "is"): boolean {
   /* expectedType is a `function` */
   if (eTT === "function") { return v instanceof (eT as Function); }
   /* expectedType is an `Array` */
-  if (Array.isArray(eT)) {
+  if (isArray(eT)) {
     return (eT as Array<unknown>).some(
       function (item: unknown) {
         if (typeof item === "string") { return _typeOf(v) === item; }
@@ -447,7 +449,7 @@ function _str (v: unknown): string {
     .includes(_typeOf(v))) {
     return String(v);
   }
-  if (Array.isArray(v)) { return `[${v.map(v => _str(v)).join(", ")}]`; }
+  if (isArray(v)) { return `[${v.map(v => _str(v)).join(", ")}]`; }
   if (v instanceof Map) {
     return `Map(${v.size}){${Array.from(v.entries()).map(([k, v]): string => `${_str(k)} => ${_str(v)}`).join(", ")}}`;
   }
@@ -544,7 +546,7 @@ function _includes (
     return false;
   }
   /* Array + TypedArray + Set + Iterables */
-  if (Array.isArray(container)
+  if (isArray(container)
     || _isTypedArray(container)
     || container instanceof Set
     || typeof container[Symbol.iterator] === "function") {
@@ -578,7 +580,7 @@ function _isEmpty (v: any): boolean {
   /* Check undefined, null, NaN */
   if (v == null || v !== v) { return true; }
   /* Check Array, TypedArrays, string, String */
-  if (Array.isArray(v)
+  if (isArray(v)
     || _isTypedArray(v)
     || typeof v === "string"
     || v instanceof String) {
@@ -648,7 +650,7 @@ const _isFloat = (v: unknown): boolean =>
  * @private
  */
 function _errorCheck (msg: unknown, caller: Function): void {
-  if (Error.isError(msg)) {
+  if (isError(msg)) {
     if (typeof (Error as ObjectLike).captureStackTrace === "function") {
       (Error as any).captureStackTrace(caller, msg);
     }
@@ -744,8 +746,8 @@ function equal (actual: unknown, expected: unknown, message?: Message): void {
     _errorCheck(message, equal);
     throw new AssertionError({
       message: `[equal] Assertion failed: ${_str(actual)} and ${_str(expected)} should be equal${_msg(message)}`,
-      actual: actual,
-      expected: expected,
+      actual,
+      expected,
       operator: "!="
     });
   }
@@ -771,8 +773,8 @@ function notEqual (
     _errorCheck(message, notEqual);
     throw new AssertionError({
       message: `[notEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be equal${_msg(message)}`,
-      actual: actual,
-      expected: expected,
+      actual,
+      expected,
       operator: "=="
     });
   }
@@ -795,8 +797,8 @@ function strictEqual (
     _errorCheck(message, strictEqual);
     throw new AssertionError({
       message: `[strictEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be strictly equal${_msg(message)}`,
-      actual: actual,
-      expected: expected,
+      actual,
+      expected,
       operator: "strictEqual"
     });
   }
@@ -819,8 +821,8 @@ function notStrictEqual (
     _errorCheck(message, notStrictEqual);
     throw new AssertionError({
       message: `[notStrictEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should not be strictly equal${_msg(message)}`,
-      actual: actual,
-      expected: expected,
+      actual,
+      expected,
       operator: "notStrictEqual"
     });
   }
@@ -843,8 +845,8 @@ function deepEqual (
     _errorCheck(message, deepEqual);
     throw new AssertionError({
       message: `[deepEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be deep equal${_msg(message)}`,
-      actual: actual,
-      expected: expected,
+      actual,
+      expected,
       operator: "deepEqual"
     });
   }
@@ -867,8 +869,8 @@ function notDeepEqual (
     _errorCheck(message, notDeepEqual);
     throw new AssertionError({
       message: `[notDeepEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should not be deep equal${_msg(message)}`,
-      actual: actual,
-      expected: expected,
+      actual,
+      expected,
       operator: "notDeepEqual"
     });
   }
@@ -993,7 +995,7 @@ async function doesNotReject (
           || (Error_opt instanceof RegExp
             && Error_opt.test((catchedError as Error).message));
       if (errorMatches) {
-        if (Error.isError(message)) throw message;
+        if (isError(message)) throw message;
         throw new AssertionError({
           message: `[doesNotReject] Assertion failed: function/promise rejected with disallowed error: ${_str(catchedError)}${_msg(message)}`,
           actual: catchedError,
@@ -1537,7 +1539,7 @@ function isInt (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isInt] Assertion failed: ${_str(value)} should be an integer${_msg(message)}`,
       actual: value,
-      expected: "",
+      expected: undefined,
       operator: "isInt"
     });
   }
@@ -1557,7 +1559,7 @@ function isNotInt (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isNotInt] Assertion failed: ${_str(value)} should not be an integer${_msg(message)}`,
       actual: value,
-      expected: "",
+      expected: undefined,
       operator: "isNotInt"
     });
   }
@@ -1577,7 +1579,7 @@ function isFloat (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isFloat] Assertion failed: ${_str(value)} should be a float${_msg(message)}`,
       actual: value,
-      expected: "",
+      expected: undefined,
       operator: "isFloat"
     });
   }
@@ -1597,7 +1599,7 @@ function isNotFloat (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isNotFloat] Assertion failed: ${_str(value)} should not be a float${_msg(message)}`,
       actual: value,
-      expected: "",
+      expected: undefined,
       operator: "isNotFloat"
     });
   }
@@ -1623,7 +1625,7 @@ function isEmpty (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isEmpty] Assertion failed: ${_str(value)} should be empty${_msg(message)}`,
       actual: value,
-      expected: "",
+      expected: undefined,
       operator: "isEmpty"
     });
   }
@@ -1649,7 +1651,7 @@ function isNotEmpty (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isNotEmpty] Assertion failed: ${_str(value)} should be not empty${_msg(message)}`,
       actual: value,
-      expected: "",
+      expected: undefined,
       operator: "isNotEmpty"
     });
   }
@@ -2115,8 +2117,8 @@ function testSync <T>(
   } catch (error) {
     return {
       ok: false,
-      error: Error.isError(error) ? error : new Error(_str(error)),
-      block: block,
+      error: isError(error) ? error : new Error(_str(error)),
+      block,
       name: _str(name)
     };
   }
@@ -2137,14 +2139,14 @@ async function testAsync <T>(
     return {
       ok: true,
       value: await block(),
-      block: block,
+      block,
       name: _str(name)
     };
   } catch (error) {
     return {
       ok: false,
-      error: Error.isError(error) ? error : new Error(_str(error)),
-      block: block,
+      error: isError(error) ? error : new Error(_str(error)),
+      block,
       name: _str(name)
     };
   }
@@ -2332,5 +2334,5 @@ assert._errorCheck = _errorCheck;*/
 
 
 /* ESM export */
-export {assert};
+export { assert };
 export default assert;
