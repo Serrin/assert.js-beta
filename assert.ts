@@ -35,7 +35,7 @@ https://google.github.io/closure-library/api/goog.asserts.html
 */
 
 
-/** TS browser and NodeJS common types from Celestra v6.7.0 **/
+/** TS browser and NodeJS common types from Celestra v7.0.0 **/
 
 
 /**
@@ -190,8 +190,9 @@ if (!("isError" in Error)) {
 
 
 /* Standard helpers */
-const { isError } = Error;
-const { isArray } = Array;
+const _isError = Error.isError;
+const _isArray = Array.isArray;
+const _ownKeys = Reflect.ownKeys;
 const _oIs = Object.is;
 
 
@@ -238,7 +239,7 @@ const _isSameType = (x: any, y: any, type?: string): boolean =>
  */
 function _classOf (v: unknown): string {
   /* primitives */
-  let vType: string = _typeOf(v);
+  let vType = _typeOf(v);
   if (vType !== "object" && vType !== "function") { return vType; }
   /* objects and functions */
   let ctor: string;
@@ -306,7 +307,7 @@ function _isDeepEqual (x: any, y: any): boolean {
       return _oIs(x.valueOf(), y.valueOf());
     }
     /* objects / Array */
-    if (isArray(x) && isArray(y)) {
+    if (_isArray(x) && _isArray(y)) {
       if (x.length !== y.length) { return false; }
       if (x.length === 0) { return true; }
       return x.every((v: unknown, i: any): boolean => _isDeepEqual(v, y[i]));
@@ -372,11 +373,11 @@ function _isDeepEqual (x: any, y: any): boolean {
     if (_isSameInstance(x, y, Date)) { return _oIs(+x, +y); }
     /* objects / Proxy -> not detectable */
     /* objects / objects */
-    let xKeys: Array<string | symbol> = Reflect.ownKeys(x);
-    let yKeys: Array<string | symbol> = Reflect.ownKeys(y);
+    let xKeys: Array<string | symbol> = _ownKeys(x);
+    let yKeys: Array<string | symbol> = _ownKeys(y);
     if (xKeys.length !== yKeys.length) { return false; }
     if (xKeys.length === 0) { return true; }
-    return xKeys.every((key: string | symbol): boolean =>
+    return xKeys.every((key: PropertyKey): boolean =>
       _isDeepEqual(x[key], y[key])
     );
   }
@@ -396,13 +397,13 @@ function _isDeepEqual (x: any, y: any): boolean {
  */
 function _is (v: unknown, eT: ExpectedType, caller: string = "is"): boolean {
   /* caching types of the arguments */
-  let eTT: string = _typeOf(eT);
+  let eTT = _typeOf(eT);
   /* expectedType is a `string` */
   if (eTT === "string") { return _typeOf(v) === eT; }
   /* expectedType is a `function` */
   if (eTT === "function") { return v instanceof (eT as Function); }
   /* expectedType is an `Array` */
-  if (isArray(eT)) {
+  if (_isArray(eT)) {
     return (eT as Array<unknown>).some(
       function (item: unknown) {
         if (typeof item === "string") { return _typeOf(v) === item; }
@@ -430,7 +431,7 @@ function _is (v: unknown, eT: ExpectedType, caller: string = "is"): boolean {
 function _str (v: unknown): string {
   let seen = new WeakSet<object>();
   function replacer (_key: string, v: unknown): any {
-    let vT: string = _typeOf(v);
+    let vT = _typeOf(v);
     if (vT === "function") {
       return `[Function: ${(v as Function).name || "anonymous"}]`;
     }
@@ -449,7 +450,7 @@ function _str (v: unknown): string {
     .includes(_typeOf(v))) {
     return String(v);
   }
-  if (isArray(v)) { return `[${v.map(v => _str(v)).join(", ")}]`; }
+  if (_isArray(v)) { return `[${v.map(v => _str(v)).join(", ")}]`; }
   if (v instanceof Map) {
     return `Map(${v.size}){${Array.from(v.entries()).map(([k, v]): string => `${_str(k)} => ${_str(v)}`).join(", ")}}`;
   }
@@ -546,7 +547,7 @@ function _includes (
     return false;
   }
   /* Array + TypedArray + Set + Iterables */
-  if (isArray(container)
+  if (_isArray(container)
     || _isTypedArray(container)
     || container instanceof Set
     || typeof container[Symbol.iterator] === "function") {
@@ -580,7 +581,7 @@ function _isEmpty (v: any): boolean {
   /* Check undefined, null, NaN */
   if (v == null || v !== v) { return true; }
   /* Check Array, TypedArrays, string, String */
-  if (isArray(v)
+  if (_isArray(v)
     || _isTypedArray(v)
     || typeof v === "string"
     || v instanceof String) {
@@ -608,7 +609,7 @@ function _isEmpty (v: any): boolean {
   }
   /* Other objects - check own properties (including symbols) */
   if (_typeOf(v) === "object") {
-    let keys: Array<string | symbol> = Reflect.ownKeys(v);
+    let keys: Array<string | symbol> = _ownKeys(v);
     if (keys.length === 0) return true;
     /* Special case: object with single "length" property that is 0 */
     if (keys.length === 1
@@ -649,8 +650,8 @@ const _isFloat = (v: unknown): boolean =>
  * @returns {void}
  * @private
  */
-function _errorCheck (msg: unknown, caller: Function): void {
-  if (isError(msg)) {
+function _watchdog (msg: unknown, caller: Function): void {
+  if (_isError(msg)) {
     if (typeof (Error as ObjectLike).captureStackTrace === "function") {
       (Error as any).captureStackTrace(caller, msg);
     }
@@ -708,7 +709,7 @@ class AssertionError extends Error {
  */
 function assert (value: unknown, message?: Message): asserts value {
   if (!value) {
-    _errorCheck(message, assert);
+    _watchdog(message, assert);
     throw new AssertionError({
       message: `[assert] Assertion failed: ${_str(value)} should be truly${_msg(message)}`,
       actual: value,
@@ -743,7 +744,7 @@ function equal (actual: unknown, expected: unknown, message?: Message): void {
     return strictEqual(actual, expected, message);
   }
   if (actual != expected) {
-    _errorCheck(message, equal);
+    _watchdog(message, equal);
     throw new AssertionError({
       message: `[equal] Assertion failed: ${_str(actual)} and ${_str(expected)} should be equal${_msg(message)}`,
       actual,
@@ -770,7 +771,7 @@ function notEqual (
     return notStrictEqual(actual, expected, message);
   }
   if (actual == expected) {
-    _errorCheck(message, notEqual);
+    _watchdog(message, notEqual);
     throw new AssertionError({
       message: `[notEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be equal${_msg(message)}`,
       actual,
@@ -794,7 +795,7 @@ function strictEqual (
   expected: unknown,
   message?: Message): void {
   if (!_oIs(actual, expected)) {
-    _errorCheck(message, strictEqual);
+    _watchdog(message, strictEqual);
     throw new AssertionError({
       message: `[strictEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be strictly equal${_msg(message)}`,
       actual,
@@ -818,7 +819,7 @@ function notStrictEqual (
   expected: unknown,
   message?: Message): void {
   if (_oIs(actual, expected)) {
-    _errorCheck(message, notStrictEqual);
+    _watchdog(message, notStrictEqual);
     throw new AssertionError({
       message: `[notStrictEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should not be strictly equal${_msg(message)}`,
       actual,
@@ -842,7 +843,7 @@ function deepEqual (
   expected: unknown,
   message?: Message): void {
   if (!_isDeepEqual(actual, expected)) {
-    _errorCheck(message, deepEqual);
+    _watchdog(message, deepEqual);
     throw new AssertionError({
       message: `[deepEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be deep equal${_msg(message)}`,
       actual,
@@ -866,7 +867,7 @@ function notDeepEqual (
   expected: unknown,
   message?: Message): void {
   if (_isDeepEqual(actual, expected)) {
-    _errorCheck(message, notDeepEqual);
+    _watchdog(message, notDeepEqual);
     throw new AssertionError({
       message: `[notDeepEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should not be deep equal${_msg(message)}`,
       actual,
@@ -995,7 +996,7 @@ async function doesNotReject (
           || (Error_opt instanceof RegExp
             && Error_opt.test((catchedError as Error).message));
       if (errorMatches) {
-        if (isError(message)) throw message;
+        if (_isError(message)) { throw message; }
         throw new AssertionError({
           message: `[doesNotReject] Assertion failed: function/promise rejected with disallowed error: ${_str(catchedError)}${_msg(message)}`,
           actual: catchedError,
@@ -1004,7 +1005,7 @@ async function doesNotReject (
         });
       }
     }
-    _errorCheck(message, doesNotReject);
+    _watchdog(message, doesNotReject);
     throw new AssertionError({
       message: `[doesNotReject] Assertion failed: function/promise rejected unexpectedly${_msg(message)}`,
       actual: catchedError,
@@ -1026,7 +1027,7 @@ function fail (actual?: unknown, expected?: unknown, message?: Message, operator
 function fail (...args: unknown[]): void {
   let message = args.length === 1 ? args[0] :
     (args.length > 1 ? args[2] : undefined);
-  _errorCheck(message, fail);
+  _watchdog(message, fail);
   throw new AssertionError({
     message: `[fail] Assertion failed${message ? `: ${_str(message)}` : ""}`,
     actual: args.length > 1 ? args[0] : undefined,
@@ -1045,7 +1046,7 @@ function fail (...args: unknown[]): void {
  */
 function notOk (value: unknown, message?: Message): asserts value is Falsy {
   if (value) {
-    _errorCheck(message, notOk);
+    _watchdog(message, notOk);
     throw new AssertionError({
       message: `[notOk] Assertion failed: ${_str(value)} should be falsy${_msg(message)}`,
       actual: value,
@@ -1117,7 +1118,7 @@ function is (
   expectedType: ExpectedType,
   message?: Message): void {
   if (!_is(value, expectedType, "is")) {
-    _errorCheck(message, is);
+    _watchdog(message, is);
     throw new AssertionError({
       message: `[is] Assertion failed: ${_str(value)} should be an expected type: ${_str(expectedType)}${_msg(message)}`,
       actual: value,
@@ -1141,7 +1142,7 @@ function isNot (
   expectedType: ExpectedType,
   message?: Message): void {
   if (_is(value, expectedType, "isNot")) {
-    _errorCheck(message, isNot);
+    _watchdog(message, isNot);
     throw new AssertionError({
       message: `[isNot] Assertion failed: ${_str(value)} should not be an expected type: ${_str(expectedType)}${_msg(message)}`,
       actual: value,
@@ -1535,7 +1536,7 @@ const isNotNaN = (value: unknown, message?: Message): void =>
  */
 function isInt (value: unknown, message?: Message): void {
   if (!Number.isInteger(value)) {
-    _errorCheck(message, isInt);
+    _watchdog(message, isInt);
     throw new AssertionError({
       message: `[isInt] Assertion failed: ${_str(value)} should be an integer${_msg(message)}`,
       actual: value,
@@ -1555,7 +1556,7 @@ function isInt (value: unknown, message?: Message): void {
  */
 function isNotInt (value: unknown, message?: Message): void {
   if (Number.isInteger(value)) {
-    _errorCheck(message, isNotInt);
+    _watchdog(message, isNotInt);
     throw new AssertionError({
       message: `[isNotInt] Assertion failed: ${_str(value)} should not be an integer${_msg(message)}`,
       actual: value,
@@ -1575,7 +1576,7 @@ function isNotInt (value: unknown, message?: Message): void {
  */
 function isFloat (value: unknown, message?: Message): void {
   if (!_isFloat(value)) {
-    _errorCheck(message, isFloat);
+    _watchdog(message, isFloat);
     throw new AssertionError({
       message: `[isFloat] Assertion failed: ${_str(value)} should be a float${_msg(message)}`,
       actual: value,
@@ -1595,7 +1596,7 @@ function isFloat (value: unknown, message?: Message): void {
  */
 function isNotFloat (value: unknown, message?: Message): void {
   if (_isFloat(value)) {
-    _errorCheck(message, isNotFloat);
+    _watchdog(message, isNotFloat);
     throw new AssertionError({
       message: `[isNotFloat] Assertion failed: ${_str(value)} should not be a float${_msg(message)}`,
       actual: value,
@@ -1621,7 +1622,7 @@ function isNotFloat (value: unknown, message?: Message): void {
  */
 function isEmpty (value: unknown, message?: Message): void {
   if (!_isEmpty(value)) {
-    _errorCheck(message, isEmpty);
+    _watchdog(message, isEmpty);
     throw new AssertionError({
       message: `[isEmpty] Assertion failed: ${_str(value)} should be empty${_msg(message)}`,
       actual: value,
@@ -1647,7 +1648,7 @@ function isEmpty (value: unknown, message?: Message): void {
  */
 function isNotEmpty (value: unknown, message?: Message): void {
   if (_isEmpty(value)) {
-    _errorCheck(message, isNotEmpty);
+    _watchdog(message, isNotEmpty);
     throw new AssertionError({
       message: `[isNotEmpty] Assertion failed: ${_str(value)} should be not empty${_msg(message)}`,
       actual: value,
@@ -1673,7 +1674,7 @@ function match (string: StringLike, regexp: RegExp, message?: Message): void {
   is(regexp, RegExp, message);
   /* Assertion */
   if (!(regexp.test(String(string)))) {
-    _errorCheck(message, match);
+    _watchdog(message, match);
     throw new AssertionError({
       message: `[match] Assertion failed: ${_str(string)} is not matched with ${_str(regexp)}${_msg(message)}`,
       actual: string,
@@ -1702,7 +1703,7 @@ function doesNotMatch (
   is(regexp, RegExp, message);
   /* Assertion */
   if (regexp.test(String(string))) {
-    _errorCheck(message, doesNotMatch);
+    _watchdog(message, doesNotMatch);
     throw new AssertionError({
       message: `[doesNotMatch] Assertion failed: ${_str(string)} is matched with ${_str(regexp)}${_msg(message)}`,
       actual: string,
@@ -1723,7 +1724,7 @@ function doesNotMatch (
  */
 function lt (value1: Comparable, value2: Comparable, message?: Message): void {
   if (!_lt(value1, value2)) {
-    _errorCheck(message, lt);
+    _watchdog(message, lt);
     throw new AssertionError({
       message: `[lt] Assertion failed: ${_str(value1)} should be less than ${_str(value2)}${_msg(message)}`,
       actual: value1,
@@ -1744,7 +1745,7 @@ function lt (value1: Comparable, value2: Comparable, message?: Message): void {
  */
 function lte (value1: Comparable, value2: Comparable, message?: Message): void {
   if (!_lte(value1, value2)) {
-    _errorCheck(message, lte);
+    _watchdog(message, lte);
     throw new AssertionError({
       message: `[lte] Assertion failed: ${_str(value1)} should be less than or equal ${_str(value2)}${_msg(message)}`,
       actual: value1,
@@ -1765,7 +1766,7 @@ function lte (value1: Comparable, value2: Comparable, message?: Message): void {
  */
 function gt (value1: Comparable, value2: Comparable, message?: Message): void {
   if (!_lt(value2, value1)) {
-    _errorCheck(message, gt);
+    _watchdog(message, gt);
     throw new AssertionError({
       message: `[gt] Assertion failed: ${_str(value1)} should be greater than ${_str(value2)}${_msg(message)}`,
       actual: value1,
@@ -1786,7 +1787,7 @@ function gt (value1: Comparable, value2: Comparable, message?: Message): void {
  */
 function gte (value1: Comparable, value2: Comparable, message?: Message): void {
   if (!_lte(value2, value1)) {
-    _errorCheck(message, gte);
+    _watchdog(message, gte);
     throw new AssertionError({
       message: `[gte] Assertion failed: ${_str(value1)} should be greater than or equal ${_str(value2)}${_msg(message)}`,
       actual: value1,
@@ -1812,7 +1813,7 @@ function inRange (
   max: Comparable,
   message?: Message): void {
   if (!_inRange(value, min, max)) {
-    _errorCheck(message, inRange);
+    _watchdog(message, inRange);
     throw new AssertionError({
       message: `[inRange] Assertion failed: ${_str(value)} should be in range ${_str(min)} and ${_str(max)} or the type of the values are not the same${_msg(message)}`,
       actual: value,
@@ -1838,7 +1839,7 @@ function notInRange (
   max: Comparable,
   message?: Message): void {
   if (_inRange(value, min, max)) {
-    _errorCheck(message, notInRange);
+    _watchdog(message, notInRange);
     throw new AssertionError({
       message: `[notInRange] Assertion failed: ${_str(value)} should be not in range ${_str(min)} and ${_str(max)}${_msg(message)}`,
       actual: value,
@@ -1866,7 +1867,7 @@ function stringContains (
   is(substring, ["string", String], message);
   /* Assertion */
   if (!String(actual).includes(String(substring))) {
-    _errorCheck(message, stringContains);
+    _watchdog(message, stringContains);
     throw new AssertionError({
       message: `[stringContains] Assertion failed: ${_str(actual)} does not contain substring ${_str(substring)}${_msg(message)}`,
       actual,
@@ -1894,7 +1895,7 @@ function stringNotContains (
   is(substring, ["string", String], message);
   /* Assertion */
   if (actual.includes(String(substring))) {
-    _errorCheck(message, stringNotContains);
+    _watchdog(message, stringNotContains);
     throw new AssertionError({
       message: `[stringNotContains] Assertion failed: ${_str(actual)} should not contain substring ${_str(substring)}${_msg(message)}`,
       actual,
@@ -1922,7 +1923,7 @@ function stringStartsWith (
   is(substring, ["string", String], message);
   /* Assertion */
   if (!String(actual).startsWith(String(substring))) {
-    _errorCheck(message, stringStartsWith);
+    _watchdog(message, stringStartsWith);
     throw new AssertionError({
       message: `[stringStartsWith] Assertion failed: ${_str(actual)} does not start with substring ${_str(substring)}${_msg(message)}`,
       actual,
@@ -1950,7 +1951,7 @@ function stringNotStartsWith (
   is(substring, ["string", String], message);
   /* Assertion */
   if (String(actual).startsWith(String(substring))) {
-    _errorCheck(message, stringNotStartsWith);
+    _watchdog(message, stringNotStartsWith);
     throw new AssertionError({
       message: `[stringNotStartsWith] Assertion failed: ${_str(actual)} starts with substring ${_str(substring)}${_msg(message)}`,
       actual,
@@ -1978,7 +1979,7 @@ function stringEndsWith (
   is(substring, ["string", String], message);
   /* Assertion */
   if (!String(actual).endsWith(String(substring))) {
-    _errorCheck(message, stringEndsWith);
+    _watchdog(message, stringEndsWith);
     throw new AssertionError({
       message: `[stringEndsWith] Assertion failed: ${_str(actual)} does not end with substring ${_str(substring)}${_msg(message)}`,
       actual,
@@ -2006,7 +2007,7 @@ function stringNotEndsWith (
   is(substring, ["string", String], message);
   /* Assertion */
   if (String(actual).endsWith(String(substring))) {
-    _errorCheck(message, stringNotEndsWith);
+    _watchdog(message, stringNotEndsWith);
     throw new AssertionError({
       message: `[stringNotEndsWith] Assertion failed: ${_str(actual)} ends with substring ${_str(substring)}${_msg(message)}`,
       actual,
@@ -2034,7 +2035,7 @@ function includes (
   is(options, "object", message);
   /* Assertion */
   if (!_includes(container, options.keyOrValue, options?.value ?? undefined)) {
-    _errorCheck(message, includes);
+    _watchdog(message, includes);
     throw new AssertionError({
       message: `[includes] Assertion failed: ${_str(container)} does not include${_str(options)}${_msg(message)}`,
       actual: container,
@@ -2062,7 +2063,7 @@ function doesNotInclude (
   is(options, "object", message);
   /* Assertion */
   if (_includes(container, options.keyOrValue, options?.value ?? undefined)) {
-    _errorCheck(message, doesNotInclude);
+    _watchdog(message, doesNotInclude);
     throw new AssertionError({
       message: `[doesNotInclude] Assertion failed: ${_str(container)} does not include ${_str(options)}${_msg(message)}`,
       actual: container,
@@ -2117,7 +2118,7 @@ function testSync <T>(
   } catch (error) {
     return {
       ok: false,
-      error: isError(error) ? error : new Error(_str(error)),
+      error: _isError(error) ? error : new Error(_str(error)),
       block,
       name: _str(name)
     };
@@ -2145,7 +2146,7 @@ async function testAsync <T>(
   } catch (error) {
     return {
       ok: false,
-      error: isError(error) ? error : new Error(_str(error)),
+      error: _isError(error) ? error : new Error(_str(error)),
       block,
       name: _str(name)
     };
@@ -2315,7 +2316,7 @@ assert.testAsync = testAsync;
 assert.testCheck = testCheck;
 assert.TestSuite = TestSuite;
 /* undocumented developer functions */
-/*assert._typeOf = _typeOf;
+/* assert._typeOf = _typeOf;
 assert._isSameType = _isSameType;
 assert._classOf = _classOf;
 assert._isTypedArray = _isTypedArray;
@@ -2330,7 +2331,7 @@ assert._includes = _includes;
 assert._isEmpty = _isEmpty;
 assert._isPrimitive = _isPrimitive;
 assert._isFloat = _isFloat;
-assert._errorCheck = _errorCheck;*/
+assert._watchdog = _watchdog */
 
 
 /* ESM export */
