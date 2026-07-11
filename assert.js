@@ -23,7 +23,8 @@ const _isError = Error.isError;
 const _isArray = Array.isArray;
 const _ownKeys = Reflect.ownKeys;
 const _oIs = Object.is;
-const _typeOf = (x) => x === null ? "null" : typeof x;
+const _getPrototypeOf = Object.getPrototypeOf;
+const _typeOf = (v) => v === null ? "null" : typeof v;
 const _isSameType = (x, y, type) => typeof type === "string"
     ? _typeOf(x) === type && _typeOf(x) === _typeOf(y)
     : _typeOf(x) === _typeOf(y);
@@ -34,7 +35,7 @@ function _classOf(v) {
     }
     let ctor;
     try {
-        ctor = Object.getPrototypeOf(v)?.constructor?.name ?? "Object";
+        ctor = _getPrototypeOf(v)?.constructor?.name ?? "Object";
     }
     catch (_error) {
         ctor = Object.prototype.toString.call(v).slice(8, -1);
@@ -60,8 +61,7 @@ function _isDeepEqual(x, y) {
         if (_oIs(x, y)) {
             return true;
         }
-        if (Object.getPrototypeOf(x).constructor !==
-            Object.getPrototypeOf(y).constructor) {
+        if (_getPrototypeOf(x).constructor !== _getPrototypeOf(y).constructor) {
             return false;
         }
         if (_isSameInstance(x, y, WeakMap) || _isSameInstance(x, y, WeakSet)) {
@@ -203,11 +203,10 @@ function _str(v) {
         }
         return v;
     }
-    if (["undefined", "null", "string", "number", "boolean", "bigint"]
-        .includes(_typeOf(v))) {
+    if (!(["symbol", "object", "function"].includes(_typeOf(v)))) {
         return String(v);
     }
-    if (_isArray(v)) {
+    if (_isArray(v) && _isTypedArray(v)) {
         return `[${v.map(v => _str(v)).join(", ")}]`;
     }
     if (v instanceof Map) {
@@ -225,7 +224,7 @@ function _str(v) {
 }
 const _msg = (msg) => msg ? ` - ${_str(msg)}` : "";
 const _lt = (x, y) => _isSameType(x, y) && x < y;
-const _lte = (x, y) => _isSameType(x, y) && (x < y || _oIs(x, y));
+const _lte = (x, y) => _lt(x, y) || _oIs(x, y);
 const _inRange = (v, min, max) => _isSameType(v, min)
     && _isSameType(min, max)
     && ((min < v && v < max) || _oIs(v, min) || _oIs(v, max));
@@ -246,30 +245,12 @@ function _includes(container, keyOrValue, valueIfKey) {
     if (container instanceof WeakSet) {
         return container.has(keyOrValue);
     }
-    if (typeof (container).next === "function") {
-        let iterator = container;
-        let result = iterator.next();
-        while (!result.done) {
-            if (_oIs(result.value, keyOrValue)) {
-                return true;
-            }
-            result = iterator.next();
-        }
-        return false;
-    }
     if (_isArray(container)
         || _isTypedArray(container)
         || container instanceof Set
-        || typeof container[Symbol.iterator] === "function") {
-        let iterator = container[Symbol.iterator]();
-        let result = iterator.next();
-        while (!result.done) {
-            if (_oIs(result.value, keyOrValue)) {
-                return true;
-            }
-            result = iterator.next();
-        }
-        return false;
+        || typeof container[Symbol.iterator] === "function"
+        || typeof container.next === "function") {
+        return Iterator.from(container).some((v) => _oIs(v, keyOrValue));
     }
     if (!Object.hasOwn(container, keyOrValue)) {
         return false;
@@ -465,7 +446,7 @@ function throws(block, Error_opt, message) {
     return thrownError;
 }
 async function rejects(block, Error_opt, message) {
-    let rejectedError = undefined;
+    let rejectedError;
     try {
         let result = typeof block === "function" ? await block() : await block;
         throw new AssertionError({
@@ -515,7 +496,6 @@ async function doesNotReject(block, Error_opt, message) {
                 throw new AssertionError({
                     message: `[doesNotReject] Assertion failed: function/promise rejected with disallowed error: ${_str(catchedError)}${_msg(message)}`,
                     actual: catchedError,
-                    expected: undefined,
                     operator: "doesNotReject"
                 });
             }
@@ -524,7 +504,6 @@ async function doesNotReject(block, Error_opt, message) {
         throw new AssertionError({
             message: `[doesNotReject] Assertion failed: function/promise rejected unexpectedly${_msg(message)}`,
             actual: catchedError,
-            expected: undefined,
             operator: "doesNotReject"
         });
     }
@@ -625,7 +604,6 @@ function isInt(value, message) {
         throw new AssertionError({
             message: `[isInt] Assertion failed: ${_str(value)} should be an integer${_msg(message)}`,
             actual: value,
-            expected: undefined,
             operator: "isInt"
         });
     }
@@ -636,7 +614,6 @@ function isNotInt(value, message) {
         throw new AssertionError({
             message: `[isNotInt] Assertion failed: ${_str(value)} should not be an integer${_msg(message)}`,
             actual: value,
-            expected: undefined,
             operator: "isNotInt"
         });
     }
@@ -647,7 +624,6 @@ function isFloat(value, message) {
         throw new AssertionError({
             message: `[isFloat] Assertion failed: ${_str(value)} should be a float${_msg(message)}`,
             actual: value,
-            expected: undefined,
             operator: "isFloat"
         });
     }
@@ -658,7 +634,6 @@ function isNotFloat(value, message) {
         throw new AssertionError({
             message: `[isNotFloat] Assertion failed: ${_str(value)} should not be a float${_msg(message)}`,
             actual: value,
-            expected: undefined,
             operator: "isNotFloat"
         });
     }
@@ -669,7 +644,6 @@ function isEmpty(value, message) {
         throw new AssertionError({
             message: `[isEmpty] Assertion failed: ${_str(value)} should be empty${_msg(message)}`,
             actual: value,
-            expected: undefined,
             operator: "isEmpty"
         });
     }
@@ -680,7 +654,6 @@ function isNotEmpty(value, message) {
         throw new AssertionError({
             message: `[isNotEmpty] Assertion failed: ${_str(value)} should be not empty${_msg(message)}`,
             actual: value,
-            expected: undefined,
             operator: "isNotEmpty"
         });
     }
@@ -883,7 +856,7 @@ const oneOf = (value, collection, message) => includes(collection, { keyOrValue:
 const notOneOf = (value, collection, message) => doesNotInclude(collection, { keyOrValue: value }, message);
 function testSync(name = "assert.testSync", block) {
     try {
-        return { ok: true, value: block(), block: block, name: _str(name) };
+        return { ok: true, value: block(), block, name: _str(name) };
     }
     catch (error) {
         return {
@@ -896,12 +869,7 @@ function testSync(name = "assert.testSync", block) {
 }
 async function testAsync(name = "assert.testAsync", block) {
     try {
-        return {
-            ok: true,
-            value: await block(),
-            block,
-            name: _str(name)
-        };
+        return { ok: true, value: await block(), block, name: _str(name) };
     }
     catch (error) {
         return {

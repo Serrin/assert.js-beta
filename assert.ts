@@ -1,4 +1,3 @@
-// @ts-check
 /// <reference lib="esnext" />
 /// <reference lib="esnext.iterator" />
 /// <reference lib="dom" />
@@ -24,14 +23,9 @@ const config = { "alwaysStrict": false };
 
 
 /*
-standard unit testing:
-https://wiki.commonjs.org/wiki/Unit_Testing/1.0
-
-Mozilla Assert functions
-https://firefox-source-docs.mozilla.org/testing/assert.html
-
-Google Clojure Asserts
-https://google.github.io/closure-library/api/goog.asserts.html
+Commonjs unit testing:    https://wiki.commonjs.org/wiki/Unit_Testing/1.0
+Mozilla Assert functions: https://firefox-source-docs.mozilla.org/testing/assert.html
+Google Clojure Asserts:   https://google.github.io/closure-library/api/goog.asserts.html
 */
 
 
@@ -190,19 +184,25 @@ if (!("isError" in Error)) {
 
 
 /* Standard helpers */
+/** @private */
 const _isError = Error.isError;
+/** @private */
 const _isArray = Array.isArray;
+/** @private */
 const _ownKeys = Reflect.ownKeys;
+/** @private */
 const _oIs = Object.is;
+/** @private */
+const _getPrototypeOf = Object.getPrototypeOf;
 
 
 /**
  * Extended typeof operator with "null" type as string.
- * @param {unknown} x
+ * @param {unknown} v
  * @returns string
  * @private
  */
-const _typeOf = (x: unknown): string => x === null ? "null" : typeof x;
+const _typeOf = (v: unknown): string => v === null ? "null" : typeof v;
 
 
 /**
@@ -244,7 +244,7 @@ function _classOf (v: unknown): string {
   /* objects and functions */
   let ctor: string;
   try {
-    ctor = Object.getPrototypeOf(v)?.constructor?.name ?? "Object";
+    ctor = _getPrototypeOf(v)?.constructor?.name ?? "Object";
   } catch (_error) {
     ctor = Object.prototype.toString.call(v).slice(8, -1);
   }
@@ -290,8 +290,7 @@ function _isDeepEqual (x: any, y: any): boolean {
     /* objects / same memory adress */
     if (_oIs(x, y)) { return true; }
     /* objects / not same constructor */
-    if (Object.getPrototypeOf(x).constructor !==
-      Object.getPrototypeOf(y).constructor) {
+    if (_getPrototypeOf(x).constructor !== _getPrototypeOf(y).constructor) {
       return false;
     }
     /* objects / WeakMap + WeakSet */
@@ -342,7 +341,8 @@ function _isDeepEqual (x: any, y: any): boolean {
       if (x.size !== y.size) { return false; }
       if (x.size === 0) { return true; }
       return [...x.keys()].every(
-        (v: unknown): boolean => _isDeepEqual(x.get(v), y.get(v)));
+        (v: unknown): boolean => _isDeepEqual(x.get(v), y.get(v))
+      );
     }
     /* objects / Set */
     if (_isSameInstance(x, y, Set)) {
@@ -373,8 +373,8 @@ function _isDeepEqual (x: any, y: any): boolean {
     if (_isSameInstance(x, y, Date)) { return _oIs(+x, +y); }
     /* objects / Proxy -> not detectable */
     /* objects / objects */
-    let xKeys: Array<string | symbol> = _ownKeys(x);
-    let yKeys: Array<string | symbol> = _ownKeys(y);
+    let xKeys = _ownKeys(x);
+    let yKeys = _ownKeys(y);
     if (xKeys.length !== yKeys.length) { return false; }
     if (xKeys.length === 0) { return true; }
     return xKeys.every((key: PropertyKey): boolean =>
@@ -423,7 +423,7 @@ function _is (v: unknown, eT: ExpectedType, caller: string = "is"): boolean {
 
 
 /**
- * @description This function is a general purpose, type safe, predictable stringifier. Converts a value into a human-readable string for error messages Handles symbols, functions, nullish, circular references, etc.
+ * @description This function is a general purpose, type safe, predictable stringifier. Converts a value into a human-readable string for error messages, symbols, functions, nullish, circular references, etc.
  * @param {unknown} v
  * @returns {string}
  * @private
@@ -446,17 +446,23 @@ function _str (v: unknown): string {
     }
     return v;
   }
-  if (["undefined", "null", "string", "number", "boolean", "bigint"]
-    .includes(_typeOf(v))) {
+  /* primitives */
+  if (!(["symbol", "object", "function"].includes(_typeOf(v)))) {
     return String(v);
   }
-  if (_isArray(v)) { return `[${v.map(v => _str(v)).join(", ")}]`; }
+  /* Array + TypedArray */
+  if (_isArray(v) && _isTypedArray(v)) {
+    return `[${v.map(v => _str(v)).join(", ")}]`;
+  }
+  /* Map */
   if (v instanceof Map) {
     return `Map(${v.size}){${Array.from(v.entries()).map(([k, v]): string => `${_str(k)} => ${_str(v)}`).join(", ")}}`;
   }
+  /* Set */
   if (v instanceof Set) {
     return `Set(${v.size}){${Array.from(v.values()).map(v => _str(v)).join(", ")}}`;
   }
+  /* Other values */
   try {
     return JSON.stringify(v, replacer) ?? String(v);
   } catch (_error) {
@@ -492,8 +498,7 @@ const _lt = (x: Comparable, y: Comparable): boolean =>
  * @returns {boolean}
  * @private
  */
-const _lte = (x: Comparable, y: Comparable): boolean =>
-  _isSameType(x, y) && (x < y || _oIs(x, y));
+const _lte = (x: Comparable, y: Comparable): boolean => _lt(x, y) || _oIs(x, y);
 
 
 /**
@@ -536,28 +541,13 @@ function _includes (
   }
   /* WeakSet */
   if (container instanceof WeakSet) { return container.has(keyOrValue); }
-  /* Iterator */
-  if (typeof (container).next === "function") {
-    let iterator = container;
-    let result = iterator.next();
-    while (!result.done) {
-      if (_oIs(result.value, keyOrValue)) { return true; }
-      result = iterator.next();
-    }
-    return false;
-  }
-  /* Array + TypedArray + Set + Iterables */
+  /* Array + TypedArray + Set + Iterator + Iterables */
   if (_isArray(container)
     || _isTypedArray(container)
     || container instanceof Set
-    || typeof container[Symbol.iterator] === "function") {
-    let iterator = container[Symbol.iterator]();
-    let result = iterator.next();
-    while (!result.done) {
-      if (_oIs(result.value, keyOrValue)) { return true; }
-      result = iterator.next();
-    }
-    return false;
+    || typeof container[Symbol.iterator] === "function"
+    || typeof container.next === "function") {
+    return Iterator.from(container).some((v: unknown) => _oIs(v, keyOrValue));
   }
   /* Plain object */
   if (!Object.hasOwn(container, keyOrValue)) { return false; }
@@ -578,26 +568,26 @@ function _includes (
  * @private
  */
 function _isEmpty (v: any): boolean {
-  /* Check undefined, null, NaN */
+  /* undefined + null + NaN */
   if (v == null || v !== v) { return true; }
-  /* Check Array, TypedArrays, string, String */
+  /* Array + TypedArray + string + String */
   if (_isArray(v)
     || _isTypedArray(v)
     || typeof v === "string"
     || v instanceof String) {
-    return (v as any).length === 0;
+    return (v as ArrayLike<any>).length === 0;
   }
-  /* Checks Map and Set */
+  /* Map + Set */
   if (v instanceof Map || v instanceof Set) { return v.size === 0; }
-  /* Check ArrayBuffer and DataView */
+  /* ArrayBuffer + DataView */
   if (v instanceof ArrayBuffer || v instanceof DataView) {
     return v.byteLength === 0;
   }
-  /* Check Iterable objects */
+  /* Iterable */
   if (typeof v[Symbol.iterator] === "function") {
     return v[Symbol.iterator]().next().done;
   }
-  /* Check Iterator objects */
+  /* Iterator */
   if ("Iterator" in globalThis
     ? (v instanceof Iterator)
     : (_typeOf(v) === "object" && typeof v.next === "function")) {
@@ -609,12 +599,12 @@ function _isEmpty (v: any): boolean {
   }
   /* Other objects - check own properties (including symbols) */
   if (_typeOf(v) === "object") {
-    let keys: Array<string | symbol> = _ownKeys(v);
+    let keys = _ownKeys(v);
     if (keys.length === 0) return true;
-    /* Special case: object with single "length" property that is 0 */
+    /* Object with single "length" property that is 0 */
     if (keys.length === 1
       && keys[0] === "length"
-      && (v as { length?: unknown }).length === 0) {
+      && (v as ArrayLike<any>).length === 0) {
       return true;
     }
   }
@@ -935,7 +925,7 @@ async function rejects (
   block: Function | Promise<unknown>,
   Error_opt?: unknown,
   message?: Message): Promise<unknown> {
-  let rejectedError: any = undefined;
+  let rejectedError: any;
   try {
     let result = typeof block === "function" ? await block() : await block;
     /* If we reach here, it resolved successfully */
@@ -1000,7 +990,6 @@ async function doesNotReject (
         throw new AssertionError({
           message: `[doesNotReject] Assertion failed: function/promise rejected with disallowed error: ${_str(catchedError)}${_msg(message)}`,
           actual: catchedError,
-          expected: undefined,
           operator: "doesNotReject"
         });
       }
@@ -1009,7 +998,6 @@ async function doesNotReject (
     throw new AssertionError({
       message: `[doesNotReject] Assertion failed: function/promise rejected unexpectedly${_msg(message)}`,
       actual: catchedError,
-      expected: undefined,
       operator: "doesNotReject"
     });
   }
@@ -1540,7 +1528,6 @@ function isInt (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isInt] Assertion failed: ${_str(value)} should be an integer${_msg(message)}`,
       actual: value,
-      expected: undefined,
       operator: "isInt"
     });
   }
@@ -1560,7 +1547,6 @@ function isNotInt (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isNotInt] Assertion failed: ${_str(value)} should not be an integer${_msg(message)}`,
       actual: value,
-      expected: undefined,
       operator: "isNotInt"
     });
   }
@@ -1580,7 +1566,6 @@ function isFloat (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isFloat] Assertion failed: ${_str(value)} should be a float${_msg(message)}`,
       actual: value,
-      expected: undefined,
       operator: "isFloat"
     });
   }
@@ -1600,7 +1585,6 @@ function isNotFloat (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isNotFloat] Assertion failed: ${_str(value)} should not be a float${_msg(message)}`,
       actual: value,
-      expected: undefined,
       operator: "isNotFloat"
     });
   }
@@ -1626,7 +1610,6 @@ function isEmpty (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isEmpty] Assertion failed: ${_str(value)} should be empty${_msg(message)}`,
       actual: value,
-      expected: undefined,
       operator: "isEmpty"
     });
   }
@@ -1652,7 +1635,6 @@ function isNotEmpty (value: unknown, message?: Message): void {
     throw new AssertionError({
       message: `[isNotEmpty] Assertion failed: ${_str(value)} should be not empty${_msg(message)}`,
       actual: value,
-      expected: undefined,
       operator: "isNotEmpty"
     });
   }
@@ -2114,7 +2096,7 @@ function testSync <T>(
   name: string = "assert.testSync",
   block: () => T): TestResult<T> {
   try {
-    return {ok: true, value: block(), block: block, name: _str(name)};
+    return {ok: true, value: block(), block, name: _str(name)};
   } catch (error) {
     return {
       ok: false,
@@ -2137,12 +2119,7 @@ async function testAsync <T>(
   block: () => Promise<T>
   ): Promise<TestResult<T>> {
   try {
-    return {
-      ok: true,
-      value: await block(),
-      block,
-      name: _str(name)
-    };
+    return {ok: true, value: await block(), block, name: _str(name)};
   } catch (error) {
     return {
       ok: false,
@@ -2160,7 +2137,7 @@ async function testAsync <T>(
  * @returns {boolean} True if the result is successful, false otherwise.
  */
 function testCheck <T>(result: TestResult<T>):
-  result is { ok: true; value: T, block: Function, name: string} {
+  result is {ok: true, value: T, block: Function, name: string} {
   return result.ok;
 }
 
@@ -2315,13 +2292,18 @@ assert.it = testSync; /* alias */
 assert.testAsync = testAsync;
 assert.testCheck = testCheck;
 assert.TestSuite = TestSuite;
-/* undocumented developer functions */
-/* assert._typeOf = _typeOf;
+/* undocumented helper functions */
+/* assert._isError = _isError;
+assert._isArray = _isArray;
+assert._ownKeys = _ownKeys;
+assert._oIs = _oIs;
+assert._typeOf = _typeOf;
 assert._isSameType = _isSameType;
 assert._classOf = _classOf;
 assert._isTypedArray = _isTypedArray;
 assert._isDeepEqual = _isDeepEqual;
 assert._is = _is;
+assert._getPrototypeOf = _getPrototypeOf;
 assert._toStr = _toStr;
 assert._msg = _msg;
 assert._lt = _lt;
@@ -2331,7 +2313,7 @@ assert._includes = _includes;
 assert._isEmpty = _isEmpty;
 assert._isPrimitive = _isPrimitive;
 assert._isFloat = _isFloat;
-assert._watchdog = _watchdog */
+assert._watchdog = _watchdog; */
 
 
 /* ESM export */
