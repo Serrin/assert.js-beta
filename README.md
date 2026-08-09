@@ -142,7 +142,7 @@ assert(1 === 1); // passes
 
 Added in v1.0.0
 
-Alias for `assert(condition: unknown [, message: string | Error]): void;`.
+Alias of `assert(condition: unknown [, message: string | Error]): void;`.
 
 ````javascript
 assert.ok(1 === 1); // passes

@@ -1,6 +1,4 @@
 "use strict";
-const VERSION = "assert.js v1.2.2";
-const config = { "alwaysStrict": false };
 (function (global) {
     if (!global.globalThis) {
         if (Object.defineProperty) {
@@ -14,9 +12,9 @@ const config = { "alwaysStrict": false };
     }
 })(typeof this === "object" ? this : Function("return this")());
 if (!("isError" in Error)) {
-    Error.isError = function isError(value) {
-        let className = Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
-        return (className === "error" || className === "domexception");
+    Error.isError = function isError(v) {
+        let cName = Object.prototype.toString.call(v).slice(8, -1).toLowerCase();
+        return (cName === "error" || cName === "domexception");
     };
 }
 const _isError = Error.isError;
@@ -29,9 +27,9 @@ const _isSameType = (x, y, type) => typeof type === "string"
     ? _typeOf(x) === type && _typeOf(x) === _typeOf(y)
     : _typeOf(x) === _typeOf(y);
 function _classOf(v) {
-    let vType = _typeOf(v);
-    if (vType !== "object" && vType !== "function") {
-        return vType;
+    let vT = _typeOf(v);
+    if (vT !== "object" && vT !== "function") {
+        return vT;
     }
     let ctor;
     try {
@@ -147,8 +145,7 @@ function _isDeepEqual(x, y) {
             return _oIs(+x, +y);
         }
         let xKeys = _ownKeys(x);
-        let yKeys = _ownKeys(y);
-        if (xKeys.length !== yKeys.length) {
+        if (xKeys.length !== _ownKeys(y).length) {
             return false;
         }
         if (xKeys.length === 0) {
@@ -199,7 +196,7 @@ function _str(v) {
         if (v instanceof Date) {
             return `Date(${v.toISOString()})`;
         }
-        if (v instanceof Error) {
+        if (_isError(v)) {
             return `${v.name}: ${v.message}, ${v.stack ?? ""}`;
         }
         if (vT === "object") {
@@ -229,7 +226,7 @@ function _str(v) {
         return String(v);
     }
 }
-const _msg = (msg) => msg ? ` - ${_str(msg)}` : "";
+const _msg = (m) => m ? ` - ${_str(m)}` : "";
 const _lt = (x, y) => _isSameType(x, y) && x < y;
 const _lte = (x, y) => _lt(x, y) || _oIs(x, y);
 const _inRange = (v, min, max) => _isSameType(v, min)
@@ -376,7 +373,7 @@ function notDeepEqual(actual, expected, message) {
     }
 }
 function throws(block, Error_opt, message) {
-    let thrownError = undefined;
+    let thrownError;
     try {
         block();
     }
@@ -480,17 +477,7 @@ function fail(...args) {
         operator: args.length > 1 ? args[3] : undefined
     });
 }
-function notOk(value, message) {
-    if (value) {
-        _watchdog(message, notOk);
-        throw new AssertionError({
-            message: `[notOk] Assertion failed: ${_str(value)} should be falsy${_msg(message)}`,
-            actual: value,
-            expected: false,
-            operator: "=="
-        });
-    }
-}
+const notOk = (value, message) => operator(value, "!=", true, message);
 const isTrue = (value, message) => strictEqual(value, true, message);
 const isNotTrue = (value, message) => notStrictEqual(value, true, message);
 const isFalse = (value, message) => strictEqual(value, false, message);
@@ -622,7 +609,7 @@ function isNotEmpty(value, message) {
 function match(string, regexp, message) {
     is(string, ["string", String], message);
     is(regexp, RegExp, message);
-    if (!(regexp.test(String(string)))) {
+    if (!regexp.test(String(string))) {
         _watchdog(message, match);
         throw new AssertionError({
             message: `[match] Assertion failed: ${_str(string)} is not matched with ${_str(regexp)}${_msg(message)}`,
@@ -911,11 +898,11 @@ class TestSuite {
     values() { return this.results.values(); }
     toArray() { return this.results.slice(); }
     [Symbol.iterator]() {
-        return this.results[Symbol.iterator]();
+        return this.results.values();
     }
 }
-assert.VERSION = VERSION;
-assert.config = config;
+assert.VERSION = "assert.js v1.2.2";
+assert.config = { "alwaysStrict": false };
 assert.AssertionError = AssertionError;
 assert.ok = ok;
 assert.equal = equal;

@@ -1,7 +1,3 @@
-declare const VERSION = "assert.js v1.2.2";
-declare const config: {
-    alwaysStrict: boolean;
-};
 type Falsy = null | undefined | false | 0 | -0 | 0n | "";
 type StringLike = string | String;
 type Nullish = undefined | null;
@@ -44,8 +40,10 @@ declare class AssertionError extends Error {
 }
 declare function assert(value: unknown, message?: Message): asserts value;
 declare namespace assert {
-    export { VERSION };
-    export { config };
+    var VERSION: string;
+    var config: {
+        alwaysStrict: boolean;
+    };
     export { AssertionError };
     export { ok };
     export { equal };
@@ -140,7 +138,7 @@ declare function rejects(block: Function | Promise<unknown>, Error_opt?: unknown
 declare function doesNotReject(block: Function, Error_opt?: unknown, message?: Message): Promise<unknown>;
 declare function fail(message?: Message): void;
 declare function fail(actual?: unknown, expected?: unknown, message?: Message, operator?: unknown): void;
-declare function notOk(value: unknown, message?: Message): asserts value is Falsy;
+declare const notOk: (value: unknown, message?: Message) => asserts value is Falsy;
 declare const isTrue: (value: unknown, message?: Message) => asserts value is true;
 declare const isNotTrue: <T>(value: T, message?: Message) => asserts value is Exclude<T, true>;
 declare const isFalse: (value: unknown, message?: Message) => asserts value is false;
@@ -213,9 +211,9 @@ declare class TestSuite {
     add(...args: Array<TestResult<any>>): this;
     clear(): this;
     get size(): number;
-    success(): IterableIterator<TestResult<any>>;
-    failed(): IterableIterator<TestResult<any>>;
-    values(): IterableIterator<TestResult<any>>;
+    success(): Iterator<TestResult<any>>;
+    failed(): Iterator<TestResult<any>>;
+    values(): Iterator<TestResult<any>>;
     toArray(): Array<TestResult<any>>;
     [Symbol.iterator](): Iterator<TestResult<any>>;
 }
