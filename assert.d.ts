@@ -1,4 +1,4 @@
-declare const VERSION = "assert.js v1.2.1";
+declare const VERSION = "assert.js v1.2.2";
 declare const config: {
     alwaysStrict: boolean;
 };
@@ -120,6 +120,7 @@ declare namespace assert {
     export { doesNotInclude };
     export { oneOf };
     export { notOneOf };
+    export { operator };
     export { testSync };
     export { testSync as test };
     export { testSync as it };
@@ -128,10 +129,10 @@ declare namespace assert {
     export { TestSuite };
 }
 declare const ok: (value: unknown, message?: Message) => asserts value;
-declare function equal(actual: unknown, expected: unknown, message?: Message): void;
-declare function notEqual(actual: unknown, expected: unknown, message?: Message): void;
-declare function strictEqual(actual: unknown, expected: unknown, message?: Message): void;
-declare function notStrictEqual(actual: unknown, expected: unknown, message?: Message): void;
+declare const equal: (actual: unknown, expected: unknown, message?: Message) => void;
+declare const notEqual: (actual: unknown, expected: unknown, message?: Message) => void;
+declare const strictEqual: (actual: unknown, expected: unknown, message?: Message) => void;
+declare const notStrictEqual: (actual: unknown, expected: unknown, message?: Message) => void;
 declare function deepEqual(actual: unknown, expected: unknown, message?: Message): void;
 declare function notDeepEqual(actual: unknown, expected: unknown, message?: Message): void;
 declare function throws(block: Function, Error_opt?: unknown, message?: Message): Error | undefined;
@@ -198,6 +199,7 @@ declare function includes(container: any, options: IncludesOptions, message?: Me
 declare function doesNotInclude(container: any, options: IncludesOptions, message?: Message): void;
 declare const oneOf: (value: unknown, collection: unknown, message?: Message) => void;
 declare const notOneOf: (value: unknown, collection: unknown, message?: Message) => void;
+declare function operator(value1: any, operatorStr: string, value2: any, message?: Message): void;
 declare function testSync<T>(name: string | undefined, block: () => T): TestResult<T>;
 declare function testAsync<T>(name: string | undefined, block: () => Promise<T>): Promise<TestResult<T>>;
 declare function testCheck<T>(result: TestResult<T>): result is {

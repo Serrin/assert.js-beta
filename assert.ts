@@ -1,22 +1,24 @@
 /// <reference lib="esnext" />
-/// <reference lib="esnext.iterator" />
 /// <reference lib="dom" />
-/// <reference lib="dom.iterable" />
-/// <reference lib="dom.asynciterable" />
 /// <reference lib="webworker.importscripts" />
+/// <reference lib="scripthost" />
+/*
+https://github.com/microsoft/TypeScript/blob/main/src/lib/esnext.full.d.ts
+https://github.com/microsoft/TypeScript/blob/main/src/compiler/commandLineParser.ts
+*/
 "use strict";
 
 
 /**
  * @name assert.js
- * @version 1.2.1
+ * @version 1.2.2
  * @author Ferenc Czigler
  * @see https://github.com/Serrin/assert.js/
  * @license MIT https://opensource.org/licenses/MIT
  */
 
 
-const VERSION = "assert.js v1.2.1";
+const VERSION = "assert.js v1.2.2";
 
 
 const config = { "alwaysStrict": false };
@@ -388,38 +390,53 @@ function _isDeepEqual (x: any, y: any): boolean {
 
 /**
  * @description Checks if the given value is the given type(s).
- * @param {unknown} v
- * @param {ExpectedType} eT
- * @param {string} [caller] - The name of the caller function.
+ * @notes From is.js v1.0.0 and added the "caller" argument.
+ * @param {unknown} value
+ * @param {string | Function | (string | Function)[]} expectedType
  * @returns {boolean}
- * @throws {TypeError} If ExpectedType is not a neccesary type.
- * @private
+ * @throws {RangeError} If expectedType array is empty.
+ * @throws {TypeError} If elements of expectedType array are not a valid type.
+ * @throws {TypeError} If expectedType is not a valid type.
  */
-function _is (v: unknown, eT: ExpectedType, caller: string = "is"): boolean {
-  /* caching types of the arguments */
-  let eTT = _typeOf(eT);
-  /* expectedType is a `string` */
-  if (eTT === "string") { return _typeOf(v) === eT; }
-  /* expectedType is a `function` */
-  if (eTT === "function") { return v instanceof (eT as Function); }
+function _is (
+  value: unknown,
+  expectedType: ExpectedType
+  , caller: string = "is"): boolean {
+  /* helper functions */
+  function _matches (value: unknown, expected: string | Function): boolean {
+    if (typeof expected === "string") { return _typeOf(value) === expected; }
+    try {
+      return value instanceof expected;
+    } catch (_error) {
+      return false;
+    }
+  }
+  /* expectedType is a `string` or `function` */
+  if (typeof expectedType === "string" || typeof expectedType  === "function") {
+    return _matches(value, expectedType);
+  }
   /* expectedType is an `Array` */
-  if (_isArray(eT)) {
-    return (eT as Array<unknown>).some(
-      function (item: unknown) {
-        if (typeof item === "string") { return _typeOf(v) === item; }
-        if (typeof item === "function") { return v instanceof item; }
-        /* other types -> throw a TypeError */
+  if (Array.isArray(expectedType)) {
+    /* expectedType array is empty -> throw a `RangeError` */
+    if (!expectedType.length) {
+      throw new RangeError(`[${_str(caller)}] expectedType array must be not empty.`);
+    }
+    for (const item of expectedType) {
+      if (typeof item !== "string" && typeof item !== "function") {
+        /* item of expectedType is not a string or function -> throw a TypeError */
         throw new TypeError(
-          `[${caller}] TypeError: expectedType array elements have to be string or function. Got ${_typeOf(item)}`
+          `[${_str(caller)}] TypeError: expectedType array elements must be string or function. Got ${_typeOf(item)}`
         );
       }
-    );
+    }
+    return expectedType.some((item) => _matches(value, item));
   }
-  /* expectedtype error -> throw a `TypeError` */
+  /* expectedType error -> throw a `TypeError` */
   throw new TypeError(
-    `[${_str(caller)}] TypeError: expectedType must be a string, function or array. Got ${_str(eTT)}`
+    `[${_str(caller)}] expectedType array elements must be strings or constructors. Got ${_typeOf(expectedType)}`
   );
 }
+
 
 
 /**
@@ -729,20 +746,15 @@ const ok = (value: unknown, message?: Message): asserts value =>
  * @returns {void}
  * @throws {AssertionError}
  */
-function equal (actual: unknown, expected: unknown, message?: Message): void {
-  if (assert.config.alwaysStrict === true) {
-    return strictEqual(actual, expected, message);
-  }
-  if (actual != expected) {
-    _watchdog(message, equal);
-    throw new AssertionError({
-      message: `[equal] Assertion failed: ${_str(actual)} and ${_str(expected)} should be equal${_msg(message)}`,
-      actual,
-      expected,
-      operator: "!="
-    });
-  }
-}
+const equal = (
+  actual: unknown,
+  expected: unknown,
+  message?: Message): void => operator(
+    actual,
+    assert.config.alwaysStrict ? "Object.is" : "==",
+    expected,
+    message
+  );
 
 
 /**
@@ -753,23 +765,15 @@ function equal (actual: unknown, expected: unknown, message?: Message): void {
  * @returns {void}
  * @throws {AssertionError}
  */
-function notEqual (
+const notEqual = (
   actual: unknown,
   expected: unknown,
-  message?: Message): void {
-  if (assert.config.alwaysStrict === true) {
-    return notStrictEqual(actual, expected, message);
-  }
-  if (actual == expected) {
-    _watchdog(message, notEqual);
-    throw new AssertionError({
-      message: `[notEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be equal${_msg(message)}`,
-      actual,
-      expected,
-      operator: "=="
-    });
-  }
-}
+  message?: Message): void => operator(
+    actual,
+    assert.config.alwaysStrict ? "!Object.is" : "!=",
+    expected,
+    message
+  );
 
 
 /**
@@ -780,20 +784,10 @@ function notEqual (
  * @returns {void}
  * @throws {AssertionError}
  */
-function strictEqual (
+const strictEqual = (
   actual: unknown,
   expected: unknown,
-  message?: Message): void {
-  if (!_oIs(actual, expected)) {
-    _watchdog(message, strictEqual);
-    throw new AssertionError({
-      message: `[strictEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should be strictly equal${_msg(message)}`,
-      actual,
-      expected,
-      operator: "strictEqual"
-    });
-  }
-}
+  message?: Message): void => operator(actual, "Object.is", expected, message);
 
 
 /**
@@ -804,20 +798,10 @@ function strictEqual (
  * @returns {void}
  * @throws {AssertionError}
  */
-function notStrictEqual (
+const notStrictEqual = (
   actual: unknown,
   expected: unknown,
-  message?: Message): void {
-  if (_oIs(actual, expected)) {
-    _watchdog(message, notStrictEqual);
-    throw new AssertionError({
-      message: `[notStrictEqual] Assertion failed: ${_str(actual)} and ${_str(expected)} should not be strictly equal${_msg(message)}`,
-      actual,
-      expected,
-      operator: "notStrictEqual"
-    });
-  }
-}
+  message?: Message): void => operator(actual, "!Object.is", expected, message);
 
 
 /**
@@ -2083,6 +2067,51 @@ const notOneOf = (
   doesNotInclude(collection, {keyOrValue: value}, message);
 
 
+/**
+ * @description Ensures a value matches a comparison operator with another value.
+ * @param {any} value1
+ * @param {string} operatorStr
+ * @param {any} value2
+ * @param {string | Error} [message]
+ * @returns {void}
+ * @throws {AssertionError}
+ */
+function operator (
+  value1: any,
+  operatorStr: string,
+  value2: any,
+  message?: Message) {
+  /* Type validation */
+  oneOf(
+    operatorStr,
+    ["==", "!=", "===", "!==", "<", "<=", ">", ">=", "Object.is", "!Object.is"],
+    message
+  );
+  /* Assertion */
+  let result = false;
+  switch (operatorStr) {
+    case "==": result = value1 == value2; break;
+    case "!=": result = value1 != value2; break;
+    case "===": result = value1 === value2; break;
+    case "!==": result = value1 !== value2; break;
+    case "<": result = value1 < value2; break;
+    case "<=": result = value1 <= value2; break;
+    case ">": result = value1 > value2; break;
+    case ">=": result = value1 >= value2; break;
+    case "Object.is": result = _oIs(value1, value2); break;
+    case "!Object.is": result = !_oIs(value1, value2); break;
+  }
+  if (!result) {
+    _watchdog(message, equal);
+    throw new AssertionError({
+      message: `[operator] Assertion failed: ${_str(value1)} does not match with the operator ${_str(operatorStr)} and ${_str(value2)}${_msg(message)}`,
+      actual: value1,
+      expected: value2,
+      operator: operatorStr
+    });
+  }
+}
+
 /* testrunner functions */
 
 
@@ -2285,6 +2314,7 @@ assert.includes = includes;
 assert.doesNotInclude = doesNotInclude;
 assert.oneOf = oneOf;
 assert.notOneOf = notOneOf;
+assert.operator = operator;
 /* testrunner functions */
 assert.testSync = testSync;
 assert.test = testSync; /* alias */
